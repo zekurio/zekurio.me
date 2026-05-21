@@ -1,0 +1,134 @@
+---
+import Base from "../layouts/Base.astro";
+
+const postModules = import.meta.glob("../content/posts/*.md", { eager: true });
+const posts = Object.values(postModules);
+posts.sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+---
+
+<Base>
+  <main>
+    <header>
+      <h1 class="page-title" transition:name="blog-title">blog</h1>
+      <p class="subtitle">thoughts on hardware, software and other things.</p>
+    </header>
+
+    <nav class="post-list">
+      {
+        posts.map((post) => {
+          const slug = post.file.split("/").pop().replace(".md", "");
+          const date = new Date(post.frontmatter.date);
+          const dateStr = date.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+          return (
+            <a href={`/blog/${slug}`} class="post-row" transition:name={`post-${slug}`}>
+              <span class="post-title">{post.frontmatter.title}</span>
+              <span class="post-date">{dateStr}</span>
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <footer class="back">
+      <a href="/">← back</a>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  main {
+    width: 100%;
+    max-width: 42rem;
+    text-align: left;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #fff;
+    letter-spacing: 0;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: var(--comment);
+    margin-bottom: 2.5rem;
+    line-height: 1.4;
+  }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 3rem;
+  }
+
+  .post-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 0.875rem 0;
+    font-size: 1rem;
+    color: var(--fg);
+    border-bottom: 1px solid rgba(171, 178, 191, 0.08);
+    position: relative;
+    transition: color 0.2s ease;
+  }
+
+  .post-row::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background-color: var(--blue);
+    transition: width 0.25s ease;
+  }
+
+  .post-row:hover {
+    color: #fff;
+  }
+
+  .post-row:hover::after {
+    width: 100%;
+  }
+
+  .post-title {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .post-date {
+    font-size: 0.875rem;
+    color: var(--comment);
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+  }
+
+  .post-row:hover .post-date {
+    color: var(--fg);
+  }
+
+  .back {
+    font-size: 0.875rem;
+    color: var(--comment);
+  }
+
+  .back a {
+    color: var(--comment);
+    transition: color 0.2s ease;
+  }
+
+  .back a:hover {
+    color: var(--fg);
+  }
+</style>

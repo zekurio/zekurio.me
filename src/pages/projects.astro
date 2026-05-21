@@ -1,0 +1,262 @@
+---
+import Base from "../layouts/Base.astro";
+import { languageColors } from "../data/language-colors";
+
+interface GitHubRepo {
+  name: string;
+  description: string | null;
+  html_url: string;
+  language: string | null;
+  stargazers_count: number;
+  fork: boolean;
+}
+
+interface Project {
+  name: string;
+  description: string;
+  url: string;
+  platform: "github" | "codeberg" | "forgejo" | "gitea" | "gitlab";
+  language: string;
+  stars: number;
+}
+
+// Fetch GitHub repos at build time
+let githubProjects: Project[] = [];
+try {
+  const res = await fetch(
+    "https://api.github.com/users/zekurio/repos?sort=updated&per_page=100&type=owner",
+    { headers: { "Accept": "application/vnd.github.v3+json" } }
+  );
+  if (res.ok) {
+    const repos: GitHubRepo[] = await res.json();
+    githubProjects = repos
+      .filter((r) => !r.fork)
+      .map((r) => ({
+        name: r.name,
+        description: r.description || "",
+        url: r.html_url,
+        platform: "github",
+        language: (r.language || "unknown").toLowerCase(),
+        stars: r.stargazers_count,
+      }));
+  }
+} catch {
+  // Network error — fall through to empty state
+}
+
+const platformSvgs: Record<string, string> = {
+  github:
+    '<path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12c0 5.303 3.438 9.8 8.205 11.385c.6.113.82-.258.82-.577c0-.285-.01-1.04-.015-2.04c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729c1.205.084 1.838 1.236 1.838 1.236c1.07 1.835 2.809 1.305 3.495.998c.108-.776.417-1.305.76-1.605c-2.665-.3-5.466-1.332-5.466-5.93c0-1.31.465-2.38 1.235-3.22c-.135-.303-.54-1.523.105-3.176c0 0 1.005-.322 3.3 1.23c.96-.267 1.98-.399 3-.405c1.02.006 2.04.138 3 .405c2.28-1.552 3.285-1.23 3.285-1.23c.645 1.653.24 2.873.12 3.176c.765.84 1.23 1.91 1.23 3.22c0 4.61-2.805 5.625-5.475 5.92c.42.36.81 1.096.81 2.22c0 1.606-.015 2.896-.015 3.286c0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>',
+  codeberg:
+    '<path fill="currentColor" d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12 12 0 0 0 24 12.75A11.977 11.977 0 0 0 11.999.747m3.654 19.104l.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377l.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377l.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>',
+  forgejo:
+    '<path fill="currentColor" d="M16.777 0a2.9 2.9 0 1 1-2.529 4.322H12.91a4.266 4.266 0 0 0-4.265 4.195v2.118a7.08 7.08 0 0 1 4.147-1.42l.118-.002h1.338a2.9 2.9 0 0 1 5.43 1.422a2.9 2.9 0 0 1-5.43 1.422H12.91a4.266 4.266 0 0 0-4.265 4.195v2.319A2.9 2.9 0 0 1 7.222 24A2.9 2.9 0 0 1 5.8 18.57V8.589a7.11 7.11 0 0 1 6.991-7.108l.118-.001h1.338A2.9 2.9 0 0 1 16.778 0M7.223 19.905a1.194 1.194 0 1 0 0 2.389a1.194 1.194 0 0 0 0-2.389m9.554-10.464a1.194 1.194 0 1 0 0 2.389a1.194 1.194 0 0 0 0-2.39m0-7.735a1.194 1.194 0 1 0 0 2.389a1.194 1.194 0 0 0 0-2.389"/>',
+  gitea:
+    '<path fill="currentColor" d="M4.209 4.603c-.247 0-.525.02-.84.088c-.333.07-1.28.283-2.054 1.027C-.403 7.25.035 9.685.089 10.052c.065.446.263 1.687 1.21 2.768c1.749 2.141 5.513 2.092 5.513 2.092s.462 1.103 1.168 2.119c.955 1.263 1.936 2.248 2.89 2.367c2.406 0 7.212-.004 7.212-.004s.458.004 1.08-.394c.535-.324 1.013-.893 1.013-.893s.492-.527 1.18-1.73c.21-.37.385-.729.538-1.068c0 0 2.107-4.471 2.107-8.823c-.042-1.318-.367-1.55-.443-1.627c-.156-.156-.366-.153-.366-.153s-4.475.252-6.792.306c-.508.011-1.012.023-1.512.027v4.474l-.634-.301c0-1.39-.004-4.17-.004-4.17c-1.107.016-3.405-.084-3.405-.084s-5.399-.27-5.987-.324c-.187-.011-.401-.032-.648-.032zm.354 1.832h.111s.271 2.269.6 3.597C5.549 11.147 6.22 13 6.22 13s-.996-.119-1.641-.348c-.99-.324-1.409-.714-1.409-.714s-.73-.511-1.096-1.52C1.444 8.73 2.021 7.7 2.021 7.7s.32-.859 1.47-1.145c.395-.106.863-.12 1.072-.12m8.33 2.554c.26.003.509.127.509.127l.868.422l-.529 1.075a.69.69 0 0 0-.614.359a.69.69 0 0 0 .072.756l-.939 1.924a.69.69 0 0 0-.66.527a.69.69 0 0 0 .347.763a.686.686 0 0 0 .867-.206a.69.69 0 0 0-.069-.882l.916-1.874a.7.7 0 0 0 .237-.02a.66.66 0 0 0 .271-.137a9 9 0 0 1 1.016.512a.76.76 0 0 1 .286.282c.073.21-.073.569-.073.569c-.087.29-.702 1.55-.702 1.55a.69.69 0 0 0-.676.477a.681.681 0 1 0 1.157-.252c.073-.141.141-.282.214-.431c.19-.397.515-1.16.515-1.16c.035-.066.218-.394.103-.814c-.095-.435-.48-.638-.48-.638c-.467-.301-1.116-.58-1.116-.58s0-.156-.042-.27a.7.7 0 0 0-.148-.241l.516-1.062l2.89 1.401s.48.218.583.619c.073.282-.019.534-.069.657c-.24.587-2.1 4.317-2.1 4.317s-.232.554-.748.588a1.1 1.1 0 0 1-.393-.045l-.202-.08l-4.31-2.1s-.417-.218-.49-.596c-.083-.31.104-.691.104-.691l2.073-4.272s.183-.37.466-.497a.9.9 0 0 1 .35-.077"/>',
+  gitlab:
+    '<path fill="currentColor" d="m23.6 9.593l-.033-.086L20.3.98a.85.85 0 0 0-.336-.405a.875.875 0 0 0-1 .054a.9.9 0 0 0-.29.44L16.47 7.818H7.537L5.333 1.07a.86.86 0 0 0-.29-.441a.875.875 0 0 0-1-.054a.86.86 0 0 0-.336.405L.433 9.502l-.032.086a6.066 6.066 0 0 0 2.012 7.01l.01.009l.03.021l4.977 3.727l2.462 1.863l1.5 1.132a1.01 1.01 0 0 0 1.22 0l1.499-1.132l2.461-1.863l5.006-3.75l.013-.01a6.07 6.07 0 0 0 2.01-7.002"/>',
+};
+
+const starSvg =
+  '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.12 2.12 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.12 2.12 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.12 2.12 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.12 2.12 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.12 2.12 0 0 0 1.597-1.16z"/>';
+---
+
+<Base>
+  <main>
+    <header>
+      <h1 class="page-title">projects</h1>
+      <p class="subtitle">things i have built, broken, and occasionally fixed.</p>
+    </header>
+
+    {
+      githubProjects.length > 0 ? (
+        <div class="project-grid">
+          {githubProjects.map((project) => {
+            const langColor = languageColors[project.language] || languageColors.unknown;
+            const platformSvg = platformSvgs[project.platform] || platformSvgs.github;
+            return (
+              <a href={project.url} class="project-card" target="_blank" rel="noopener noreferrer">
+                <div class="card-header">
+                  <span class="project-name">{project.name}</span>
+                  <svg class="platform-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={platformSvg} />
+                </div>
+                <p class="project-desc">{project.description}</p>
+                <div class="card-footer">
+                  <span class="lang-tag">
+                    <span class="lang-dot" style={`background-color: ${langColor}`} />
+                    <span class="lang-name">{project.language}</span>
+                  </span>
+                  <span class="stars">
+                    <svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={starSvg} />
+                    <span>{project.stars}</span>
+                  </span>
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      ) : (
+        <div class="empty">
+          <p>could not load projects.</p>
+          <p class="empty-hint">github api may be rate-limited. try again later.</p>
+        </div>
+      )
+    }
+
+    <footer class="back">
+      <a href="/">← back</a>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  main {
+    width: 100%;
+    max-width: 44rem;
+    text-align: left;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #fff;
+    letter-spacing: 0;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: var(--comment);
+    margin-bottom: 2.5rem;
+    line-height: 1.4;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    background-color: rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(171, 178, 191, 0.08);
+    border-radius: 0.5rem;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .project-card:hover {
+    border-color: rgba(97, 175, 239, 0.35);
+    background-color: rgba(0, 0, 0, 0.22);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .project-name {
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.4;
+  }
+
+  .platform-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    color: var(--comment);
+    flex-shrink: 0;
+    transition: color 0.2s ease;
+  }
+
+  .project-card:hover .platform-icon {
+    color: var(--fg);
+  }
+
+  .project-desc {
+    font-size: 0.875rem;
+    color: var(--comment);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(171, 178, 191, 0.06);
+  }
+
+  .lang-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--comment);
+  }
+
+  .lang-dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .lang-name {
+    text-transform: lowercase;
+  }
+
+  .stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    color: var(--comment);
+  }
+
+  .star-icon {
+    width: 0.85rem;
+    height: 0.85rem;
+    color: var(--yellow);
+  }
+
+  .empty {
+    margin-bottom: 3rem;
+    padding: 2rem 0;
+    color: var(--comment);
+    font-size: 0.875rem;
+  }
+
+  .empty-hint {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--comment);
+    opacity: 0.7;
+  }
+
+  .back {
+    font-size: 0.875rem;
+    color: var(--comment);
+  }
+
+  .back a {
+    color: var(--comment);
+    transition: color 0.2s ease;
+  }
+
+  .back a:hover {
+    color: var(--fg);
+  }
+</style>
