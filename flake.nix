@@ -16,11 +16,14 @@
       {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
-            deno
+            nodejs_24
+            pnpm
           ];
 
           shellHook = ''
             export ZEKURIO_ME_ROOT="$PWD"
+            export PNPM_HOME="$PWD/.pnpm-home"
+            export PATH="$PNPM_HOME:$PATH"
           '';
         };
       }
