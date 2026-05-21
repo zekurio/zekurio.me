@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "nodeModulesDir": "auto",
+  "imports": {
+    "astro": "npm:astro@^5.0.0",
+    "@astrojs/deno": "npm:@astrojs/deno@^6.0.0",
+    "@fontsource/ibm-plex-mono": "npm:@fontsource/ibm-plex-mono@^5.0.0"
+  },
+  "tasks": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  }
+}

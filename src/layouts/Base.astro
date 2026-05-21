@@ -1,0 +1,57 @@
+---
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/700.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Michael S. — zekurio.me</title>
+    <style is:global>
+      :root {
+        --bg: #282c34;
+        --fg: #abb2bf;
+        --comment: #5c6370;
+        --red: #e06c75;
+        --orange: #d19a66;
+        --yellow: #e5c07b;
+        --green: #98c379;
+        --cyan: #56b6c2;
+        --blue: #61afef;
+        --purple: #c678dd;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        background-color: var(--bg);
+        color: var(--fg);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 16px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      body {
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
