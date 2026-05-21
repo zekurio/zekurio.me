@@ -1,0 +1,23 @@
+{
+  "name": "zekurio-me",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@10.12.1",
+  "engines": {
+    "node": ">=24.14.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro preview --host 0.0.0.0 --port ${PORT:-4321}",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-mono": "^5.0.0",
+    "@iconify-json/lucide": "^1.2.109",
+    "@iconify-json/simple-icons": "^1.2.83",
+    "astro": "^6.0.0",
+    "astro-icon": "^1.1.5"
+  }
+}
