@@ -207,7 +207,7 @@ const starSvg =
 </Base>
 
 <script define:vars={{ seedProjects: projects, languageColors, githubSvg, starSvg }}>
-  const windowSize = 6;
+  const DESKTOP_WINDOW = 6;
   const grid = document.querySelector("#project-grid");
   const emptyState = document.querySelector("#empty-state");
   const searchInput = document.querySelector("#repo-search");
@@ -221,9 +221,11 @@ const starSvg =
   let wheelRemainder = 0;
   let isTransitioning = false;
 
+  const isMobile = () => window.innerWidth < 640;
+  const getWindowSize = () => (isMobile() ? filtered.length : DESKTOP_WINDOW);
   const colorFor = (language) => languageColors[language] || languageColors.unknown;
-  const maxOffset = () => Math.max(0, filtered.length - windowSize);
-  const visibleProjects = () => filtered.slice(offset, offset + windowSize);
+  const maxOffset = () => Math.max(0, filtered.length - getWindowSize());
+  const visibleProjects = () => filtered.slice(offset, offset + getWindowSize());
 
   function escapeHtml(value) {
     return String(value)
@@ -308,7 +310,7 @@ const starSvg =
   function withRepoTransition(direction, callback) {
     document.documentElement.dataset.repoDirection = direction;
 
-    if (!document.startViewTransition) {
+    if (!document.startViewTransition || isMobile()) {
       callback();
       delete document.documentElement.dataset.repoDirection;
       return;
@@ -323,7 +325,7 @@ const starSvg =
   }
 
   function move(delta) {
-    if (isTransitioning || filtered.length <= windowSize) return;
+    if (isTransitioning || filtered.length <= getWindowSize()) return;
 
     const next = Math.min(maxOffset(), Math.max(0, offset + delta));
     if (next === offset) return;
@@ -361,7 +363,7 @@ const starSvg =
   stage.addEventListener(
     "wheel",
     (event) => {
-      if (filtered.length <= windowSize) return;
+      if (filtered.length <= getWindowSize()) return;
       event.preventDefault();
 
       wheelRemainder += event.deltaY;
@@ -409,6 +411,23 @@ const starSvg =
 
     if (Math.abs(delta) > 35) move(delta > 0 ? 1 : -1);
   });
+
+  function recalcWindowSize() {
+    const wasMobile = getWindowSize() === filtered.length;
+    const nowMobile = isMobile();
+    if (wasMobile !== nowMobile) {
+      offset = 0;
+      render();
+    }
+  }
+
+  window.addEventListener("resize", recalcWindowSize);
+
+  // Initial render in case server only sent 6 items but we're on mobile
+  if (isMobile() && filtered.length > DESKTOP_WINDOW) {
+    offset = 0;
+    render();
+  }
 
   updateMeta();
 </script>
@@ -480,6 +499,12 @@ const starSvg =
     margin-bottom: 1rem;
     color: var(--comment);
     font-size: 0.75rem;
+  }
+
+  @media (max-width: 639px) {
+    .projects-page #repo-window {
+      display: none;
+    }
   }
 
   .projects-page .repo-stage {
