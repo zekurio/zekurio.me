@@ -7,8 +7,8 @@ posts.sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date)
 ---
 
 <Base>
-  <main>
-    <header>
+  <main class="blog-page">
+    <header class="blog-header">
       <h1 class="page-title" transition:name="blog-title">blog</h1>
       <p class="subtitle">thoughts on hardware, software and other things.</p>
     </header>
@@ -40,10 +40,21 @@ posts.sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date)
 </Base>
 
 <style>
-  main {
+  .blog-page {
+    display: flex;
     width: 100%;
     max-width: 42rem;
+    min-height: calc(100dvh - 4rem);
+    flex-direction: column;
+    justify-content: flex-start;
     text-align: left;
+  }
+
+  .blog-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
   }
 
   .page-title {
