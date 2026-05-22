@@ -127,12 +127,9 @@ const starSvg =
 
 <Base>
   <main class="projects-page">
-    <header>
+    <header class="projects-header">
       <h1 class="page-title">projects</h1>
       <p class="subtitle">searchable github repos. scroll the stack to page through them.</p>
-    </header>
-
-    <section class="repo-browser" aria-label="github repositories">
       <label class="search-wrap">
         <span class="search-label">search repos</span>
         <input
@@ -143,10 +140,16 @@ const starSvg =
           placeholder="name, language, description..."
         />
       </label>
+    </header>
 
+    <section class="repo-browser" aria-label="github repositories">
       <div class="repo-meta" aria-live="polite">
         <span id="repo-count">{projects.length} repos</span>
-        <span id="repo-window">showing {initialProjects.length ? `1-${initialProjects.length}` : "0"}</span>
+        <div class="repo-nav">
+          <span id="repo-window">showing {initialProjects.length ? `1-${initialProjects.length}` : "0"}</span>
+          <button id="scroll-up" class="scroll-arrow" aria-label="previous projects" disabled>▲</button>
+          <button id="scroll-down" class="scroll-arrow" aria-label="next projects" disabled>▼</button>
+        </div>
       </div>
 
       <div id="repo-stage" class="repo-stage" tabindex="0" aria-label="scroll repository list">
@@ -198,6 +201,7 @@ const starSvg =
           <p class="empty-hint">github api may be rate-limited. try again later.</p>
         </div>
       </div>
+      <div class="more-hint" id="more-hint">scroll for more projects</div>
     </section>
 
     <footer class="back">
@@ -214,6 +218,9 @@ const starSvg =
   const repoCount = document.querySelector("#repo-count");
   const repoWindow = document.querySelector("#repo-window");
   const stage = document.querySelector("#repo-stage");
+  const scrollUp = document.querySelector("#scroll-up");
+  const scrollDown = document.querySelector("#scroll-down");
+  const moreHint = document.querySelector("#more-hint");
 
   let projects = [...seedProjects];
   let filtered = [...projects];
@@ -289,6 +296,12 @@ const starSvg =
     const shown = visibleProjects().length;
     repoCount.textContent = `${filtered.length} repo${filtered.length === 1 ? "" : "s"}`;
     repoWindow.textContent = shown > 0 ? `showing ${offset + 1}-${offset + shown}` : "showing 0";
+
+    const canGoUp = offset > 0;
+    const canGoDown = offset < maxOffset();
+    if (scrollUp) scrollUp.disabled = !canGoUp;
+    if (scrollDown) scrollDown.disabled = !canGoDown;
+    if (moreHint) moreHint.classList.toggle("is-visible", canGoDown && !isMobile());
   }
 
   function render() {
@@ -360,10 +373,18 @@ const starSvg =
 
   searchInput.addEventListener("input", applySearch);
 
-  stage.addEventListener(
+  document.addEventListener(
     "wheel",
     (event) => {
+      if (isMobile()) return;
       if (filtered.length <= getWindowSize()) return;
+      if (document.activeElement === searchInput) return;
+
+      const atTop = offset === 0;
+      const atBottom = offset >= maxOffset();
+      if (event.deltaY > 0 && atBottom) return;
+      if (event.deltaY < 0 && atTop) return;
+
       event.preventDefault();
 
       wheelRemainder += event.deltaY;
@@ -375,7 +396,9 @@ const starSvg =
     { passive: false },
   );
 
-  stage.addEventListener("keydown", (event) => {
+  document.addEventListener("keydown", (event) => {
+    if (event.target === searchInput) return;
+
     if (["ArrowDown", "PageDown", "j"].includes(event.key)) {
       event.preventDefault();
       move(1);
@@ -412,6 +435,9 @@ const starSvg =
     if (Math.abs(delta) > 35) move(delta > 0 ? 1 : -1);
   });
 
+  if (scrollUp) scrollUp.addEventListener("click", () => move(-1));
+  if (scrollDown) scrollDown.addEventListener("click", () => move(1));
+
   function recalcWindowSize() {
     const wasMobile = getWindowSize() === filtered.length;
     const nowMobile = isMobile();
@@ -434,9 +460,21 @@ const starSvg =
 
 <style is:global>
   .projects-page {
+    display: flex;
     width: 100%;
     max-width: 64rem;
+    min-height: calc(100dvh - 4rem);
+    flex-direction: column;
+    justify-content: flex-start;
     text-align: left;
+  }
+
+  .projects-page .projects-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding-bottom: 0.75rem;
+    background: var(--bg);
   }
 
   .projects-page .page-title {
@@ -461,7 +499,6 @@ const starSvg =
 
   .projects-page .search-wrap {
     display: block;
-    margin-bottom: 0.75rem;
   }
 
   .projects-page .search-label {
@@ -507,7 +544,54 @@ const starSvg =
     }
   }
 
+  .projects-page .repo-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .projects-page .scroll-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    padding: 0;
+    color: var(--fg);
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(171, 178, 191, 0.1);
+    border-radius: 0.35rem;
+    font-family: inherit;
+    font-size: 0.6rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .projects-page .scroll-arrow:hover:not(:disabled) {
+    border-color: rgba(97, 175, 239, 0.45);
+  }
+
+  .projects-page .scroll-arrow:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  .projects-page .more-hint {
+    margin-top: 0.75rem;
+    text-align: center;
+    color: var(--comment);
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .projects-page .more-hint.is-visible {
+    opacity: 1;
+  }
+
   .projects-page .repo-stage {
+    position: relative;
     outline: none;
     touch-action: pan-y;
   }
@@ -522,13 +606,12 @@ const starSvg =
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
     gap: 0.85rem;
-    min-height: 20.5rem;
     view-transition-name: repo-grid;
   }
 
   .projects-page .project-card {
     display: flex;
-    min-height: 10.5rem;
+    height: 11.5rem;
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem;
@@ -536,6 +619,7 @@ const starSvg =
     border: 1px solid rgba(171, 178, 191, 0.08);
     border-radius: 0.5rem;
     transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+    overflow: hidden;
   }
 
   .projects-page .project-card:hover {
