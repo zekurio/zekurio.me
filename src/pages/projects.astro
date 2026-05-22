@@ -27,6 +27,7 @@ interface Project {
   fork: boolean;
   archived: boolean;
   updatedAt: string;
+  forkedFrom?: string;
 }
 
 function getBuildEnv(name: string): string | undefined {
@@ -34,7 +35,7 @@ function getBuildEnv(name: string): string | undefined {
 }
 
 function getGitHubToken(): string | undefined {
-  return getBuildEnv("GITHUB_TOKEN") || getBuildEnv("GH_TOKEN");
+  return getBuildEnv("GITHUB_TOKEN");
 }
 
 async function fetchGitHubRepos(): Promise<Project[]> {
@@ -63,19 +64,43 @@ async function fetchGitHubRepos(): Promise<Project[]> {
     if (pageRepos.length < 100) break;
   }
 
-  return repos
-    .map((repo) => ({
+  const projects: Project[] = [];
+
+  for (const repo of repos) {
+    let language = (repo.language || "unknown").toLowerCase();
+    let forkedFrom: string | undefined;
+
+    if (repo.fork) {
+      const detailRes = await fetch(repo.url, { headers });
+      if (detailRes.ok) {
+        const detail = await detailRes.json() as {
+          parent?: { full_name: string; language: string | null };
+        };
+        if (detail.parent) {
+          forkedFrom = detail.parent.full_name;
+          if (!repo.language && detail.parent.language) {
+            language = detail.parent.language.toLowerCase();
+          }
+        }
+      }
+    }
+
+    projects.push({
       id: repo.id,
       name: repo.name,
       description: repo.description || "no description yet.",
       url: repo.html_url,
-      language: (repo.language || "unknown").toLowerCase(),
+      language,
       stars: repo.stargazers_count,
       forks: repo.forks_count,
       fork: repo.fork,
       archived: repo.archived,
       updatedAt: repo.updated_at,
-    }))
+      forkedFrom,
+    });
+  }
+
+  return projects
     .sort((a, b) => {
       if (a.fork !== b.fork) return a.fork ? 1 : -1;
       if (a.archived !== b.archived) return a.archived ? 1 : -1;
@@ -142,6 +167,9 @@ const starSvg =
                       <span class="project-name">{project.name}</span>
                       <svg class="platform-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={githubSvg} />
                     </div>
+                    {project.forkedFrom && (
+                      <span class="fork-from">forked from {project.forkedFrom}</span>
+                    )}
                     <p class="project-desc">{project.description}</p>
                     <div class="card-footer">
                       <span class="lang-tag">
@@ -149,7 +177,6 @@ const starSvg =
                         <span class="lang-name">{project.language}</span>
                       </span>
                       <span class="repo-flags">
-                        {project.fork && <span class="pill">fork</span>}
                         {project.archived && <span class="pill">archived</span>}
                       </span>
                       <span class="stars">
@@ -219,9 +246,13 @@ const starSvg =
     const description = escapeHtml(project.description);
     const stars = Number(project.stars) || 0;
     const flags = [
-      project.fork ? '<span class="pill">fork</span>' : "",
       project.archived ? '<span class="pill">archived</span>' : "",
     ].join("");
+
+    const forkedFrom = project.forkedFrom ? escapeHtml(project.forkedFrom) : "";
+    const forkFromHtml = forkedFrom
+      ? `<span class="fork-from">forked from ${forkedFrom}</span>`
+      : "";
 
     return `
       <a
@@ -235,6 +266,7 @@ const starSvg =
           <span class="project-name">${name}</span>
           ${svg("platform-icon", githubSvg)}
         </div>
+        ${forkFromHtml}
         <p class="project-desc">${description}</p>
         <div class="card-footer">
           <span class="lang-tag">
@@ -463,7 +495,7 @@ const starSvg =
 
   .projects-page .project-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
     gap: 0.85rem;
     min-height: 20.5rem;
     view-transition-name: repo-grid;
@@ -471,10 +503,10 @@ const starSvg =
 
   .projects-page .project-card {
     display: flex;
-    min-height: 9.75rem;
+    min-height: 10.5rem;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 0.85rem;
+    padding: 1rem;
     background-color: rgba(0, 0, 0, 0.15);
     border: 1px solid rgba(171, 178, 191, 0.08);
     border-radius: 0.5rem;
@@ -525,7 +557,7 @@ const starSvg =
     font-size: 0.825rem;
     line-height: 1.45;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
   }
 
   .projects-page .card-footer {
@@ -576,6 +608,11 @@ const starSvg =
     color: var(--comment);
     background: rgba(171, 178, 191, 0.07);
     border-radius: 999px;
+    font-size: 0.65rem;
+  }
+
+  .projects-page .fork-from {
+    color: var(--comment);
     font-size: 0.65rem;
   }
 
