@@ -29,13 +29,30 @@ interface Project {
   updatedAt: string;
 }
 
+function getBuildEnv(name: string): string | undefined {
+  return (import.meta.env?.[name] as string | undefined) || process.env[name];
+}
+
+function getGitHubToken(): string | undefined {
+  return getBuildEnv("GITHUB_TOKEN") || getBuildEnv("GH_TOKEN");
+}
+
 async function fetchGitHubRepos(): Promise<Project[]> {
   const repos: GitHubRepo[] = [];
+  const headers: Record<string, string> = {
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+  const githubToken = getGitHubToken();
+
+  if (githubToken) {
+    headers.Authorization = `Bearer ${githubToken}`;
+  }
 
   for (let page = 1; page <= 10; page += 1) {
     const res = await fetch(
       `https://api.github.com/users/zekurio/repos?sort=updated&direction=desc&per_page=100&page=${page}&type=owner`,
-      { headers: { Accept: "application/vnd.github.v3+json" } },
+      { headers },
     );
 
     if (!res.ok) break;
@@ -71,7 +88,7 @@ let projects: Project[] = [];
 try {
   projects = await fetchGitHubRepos();
 } catch {
-  // Network error — the client-side fetch below will try again in the browser.
+  // Network error or rate limit — keep the page renderable with an empty state.
 }
 
 const initialProjects = projects.slice(0, 6);
@@ -176,27 +193,6 @@ const starSvg =
   let offset = 0;
   let wheelRemainder = 0;
   let isTransitioning = false;
-
-  const sortProjects = (items) =>
-    [...items].sort((a, b) => {
-      if (a.fork !== b.fork) return a.fork ? 1 : -1;
-      if (a.archived !== b.archived) return a.archived ? 1 : -1;
-      if (a.stars !== b.stars) return b.stars - a.stars;
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
-
-  const normalizeRepo = (repo) => ({
-    id: repo.id,
-    name: repo.name,
-    description: repo.description || "no description yet.",
-    url: repo.html_url,
-    language: (repo.language || "unknown").toLowerCase(),
-    stars: repo.stargazers_count,
-    forks: repo.forks_count,
-    fork: repo.fork,
-    archived: repo.archived,
-    updatedAt: repo.updated_at,
-  });
 
   const colorFor = (language) => languageColors[language] || languageColors.unknown;
   const maxOffset = () => Math.max(0, filtered.length - windowSize);
@@ -328,36 +324,6 @@ const starSvg =
     });
   }
 
-  async function fetchCurrentRepos() {
-    try {
-      const repos = [];
-
-      for (let page = 1; page <= 10; page += 1) {
-        const res = await fetch(
-          `https://api.github.com/users/zekurio/repos?sort=updated&direction=desc&per_page=100&page=${page}&type=owner`,
-          { headers: { Accept: "application/vnd.github.v3+json" } },
-        );
-
-        if (!res.ok) return;
-
-        const pageRepos = await res.json();
-        repos.push(...pageRepos);
-        if (pageRepos.length < 100) break;
-      }
-
-      if (repos.length === 0) return;
-
-      projects = sortProjects(repos.map(normalizeRepo));
-      filtered = filterProjects(searchInput.value);
-      withRepoTransition("filter", () => {
-        offset = 0;
-        render();
-      });
-    } catch {
-      // Keep the build-time snapshot if live GitHub fetch fails.
-    }
-  }
-
   searchInput.addEventListener("input", applySearch);
 
   stage.addEventListener(
@@ -413,7 +379,6 @@ const starSvg =
   });
 
   updateMeta();
-  fetchCurrentRepos();
 </script>
 
 <style is:global>
