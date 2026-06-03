@@ -16,7 +16,6 @@
     "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
-    "@fontsource/ibm-plex-mono": "^5.0.0",
     "@iconify-json/lucide": "^1.2.109",
     "@iconify-json/simple-icons": "^1.2.83",
     "astro": "^6.0.0",
