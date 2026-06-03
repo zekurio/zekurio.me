@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@fontsource/ibm-plex-mono':
-        specifier: ^5.0.0
-        version: 5.2.7
       '@iconify-json/lucide':
         specifier: ^1.2.109
         version: 1.2.109
@@ -443,9 +440,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
-
-  '@fontsource/ibm-plex-mono@5.2.7':
-    resolution: {integrity: sha512-MKAb8qV+CaiMQn2B0dIi1OV3565NYzp3WN5b4oT6LTkk+F0jR6j0ZN+5BKJiIhffDC3rtBULsYZE65+0018z9w==}
 
   '@iconify-json/lucide@1.2.109':
     resolution: {integrity: sha512-O5arvTVcu95soP3dGWJp/Nl5L5FYmFu2z75sSrQmGzrgrnsCU49t8+ZB7HPq//GRNXpWUoNfDRcs5yR7XMa+zw==}
@@ -2165,8 +2159,6 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.7':
     optional: true
-
-  '@fontsource/ibm-plex-mono@5.2.7': {}
 
   '@iconify-json/lucide@1.2.109':
     dependencies:
