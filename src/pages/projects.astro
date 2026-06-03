@@ -1,208 +1,76 @@
 ---
 import Base from "../layouts/Base.astro";
-import { languageColors } from "../data/language-colors";
-
-interface GitHubRepo {
-  id: number;
-  name: string;
-  full_name: string;
-  description: string | null;
-  html_url: string;
-  language: string | null;
-  stargazers_count: number;
-  forks_count: number;
-  fork: boolean;
-  archived: boolean;
-  updated_at: string;
-}
 
 interface Project {
-  id: number;
   name: string;
   description: string;
   url: string;
   language: string;
-  stars: number;
-  forks: number;
-  fork: boolean;
-  archived: boolean;
-  updatedAt: string;
-  forkedFrom?: string;
+  langColor: string;
 }
 
-function getBuildEnv(name: string): string | undefined {
-  return (import.meta.env?.[name] as string | undefined) || process.env[name];
-}
-
-function getGitHubToken(): string | undefined {
-  return getBuildEnv("GITHUB_TOKEN");
-}
-
-async function fetchGitHubRepos(): Promise<Project[]> {
-  const repos: GitHubRepo[] = [];
-  const headers: Record<string, string> = {
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-  };
-  const githubToken = getGitHubToken();
-
-  if (githubToken) {
-    headers.Authorization = `Bearer ${githubToken}`;
-  }
-
-  for (let page = 1; page <= 10; page += 1) {
-    const res = await fetch(
-      `https://api.github.com/users/zekurio/repos?sort=updated&direction=desc&per_page=100&page=${page}&type=owner`,
-      { headers },
-    );
-
-    if (!res.ok) break;
-
-    const pageRepos = (await res.json()) as GitHubRepo[];
-    repos.push(...pageRepos);
-
-    if (pageRepos.length < 100) break;
-  }
-
-  const projects: Project[] = [];
-
-  for (const repo of repos) {
-    let language = (repo.language || "unknown").toLowerCase();
-    let forkedFrom: string | undefined;
-
-    if (repo.fork) {
-      const detailRes = await fetch(repo.url, { headers });
-      if (detailRes.ok) {
-        const detail = await detailRes.json() as {
-          parent?: { full_name: string; language: string | null };
-        };
-        if (detail.parent) {
-          forkedFrom = detail.parent.full_name;
-          if (!repo.language && detail.parent.language) {
-            language = detail.parent.language.toLowerCase();
-          }
-        }
-      }
-    }
-
-    projects.push({
-      id: repo.id,
-      name: repo.name,
-      description: repo.description || "no description yet.",
-      url: repo.html_url,
-      language,
-      stars: repo.stargazers_count,
-      forks: repo.forks_count,
-      fork: repo.fork,
-      archived: repo.archived,
-      updatedAt: repo.updated_at,
-      forkedFrom,
-    });
-  }
-
-  return projects
-    .sort((a, b) => {
-      if (a.fork !== b.fork) return a.fork ? 1 : -1;
-      if (a.archived !== b.archived) return a.archived ? 1 : -1;
-      if (a.stars !== b.stars) return b.stars - a.stars;
-      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-    });
-}
-
-let projects: Project[] = [];
-try {
-  projects = await fetchGitHubRepos();
-} catch {
-  // Network error or rate limit — keep the page renderable with an empty state.
-}
-
-const initialProjects = projects.slice(0, 6);
-
-const githubSvg =
-  '<path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12c0 5.303 3.438 9.8 8.205 11.385c.6.113.82-.258.82-.577c0-.285-.01-1.04-.015-2.04c-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729c1.205.084 1.838 1.236 1.838 1.236c1.07 1.835 2.809 1.305 3.495.998c.108-.776.417-1.305.76-1.605c-2.665-.3-5.466-1.332-5.466-5.93c0-1.31.465-2.38 1.235-3.22c-.135-.303-.54-1.523.105-3.176c0 0 1.005-.322 3.3 1.23c.96-.267 1.98-.399 3-.405c1.02.006 2.04.138 3 .405c2.28-1.552 3.285-1.23 3.285-1.23c.645 1.653.24 2.873.12 3.176c.765.84 1.23 1.91 1.23 3.22c0 4.61-2.805 5.625-5.475 5.92c.42.36.81 1.096.81 2.22c0 1.606-.015 2.896-.015 3.286c0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>';
-
-const starSvg =
-  '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.12 2.12 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.12 2.12 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.12 2.12 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.12 2.12 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.12 2.12 0 0 0 1.597-1.16z"/>';
+const projects: Project[] = [
+  {
+    name: "alloy",
+    description: "open-source and self-hostable alternative to Medal.tv",
+    url: "https://github.com/zekurio/alloy",
+    language: "typescript",
+    langColor: "#8caaee",
+  },
+  {
+    name: "booruthing",
+    description: "a rule34 and danbooru browser",
+    url: "https://github.com/zekurio/booruthing",
+    language: "typescript",
+    langColor: "#8caaee",
+  },
+  {
+    name: "blitzcrank",
+    description: "a support agent for my homelab — built on top of Pi",
+    url: "https://github.com/zekurio/blitzcrank",
+    language: "go",
+    langColor: "#81c8be",
+  },
+  {
+    name: "nix",
+    description: "my nix config — use at own risk",
+    url: "https://github.com/zekurio/nix",
+    language: "nix",
+    langColor: "#ca9ee6",
+  },
+];
 ---
 
 <Base>
   <main class="projects-page">
     <header class="projects-header">
       <h1 class="page-title">projects</h1>
-      <p class="subtitle">searchable github repos. scroll the stack to page through them.</p>
-      <label class="search-wrap">
-        <span class="search-label">search repos</span>
-        <input
-          id="repo-search"
-          class="repo-search"
-          type="search"
-          autocomplete="off"
-          placeholder="name, language, description..."
-        />
-      </label>
+      <p class="subtitle">a few things i've been working on.</p>
     </header>
 
-    <section class="repo-browser" aria-label="github repositories">
-      <div class="repo-meta" aria-live="polite">
-        <span id="repo-count">{projects.length} repos</span>
-        <div class="repo-nav">
-          <span id="repo-window">showing {initialProjects.length ? `1-${initialProjects.length}` : "0"}</span>
-          <button id="scroll-up" class="scroll-arrow" aria-label="previous projects" disabled>▲</button>
-          <button id="scroll-down" class="scroll-arrow" aria-label="next projects" disabled>▼</button>
-        </div>
-      </div>
-
-      <div id="repo-stage" class="repo-stage" tabindex="0" aria-label="scroll repository list">
-        {
-          projects.length > 0 ? (
-            <div id="project-grid" class="project-grid">
-              {initialProjects.map((project) => {
-                const langColor = languageColors[project.language] || languageColors.unknown;
-                return (
-                  <a
-                    href={project.url}
-                    class="project-card"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={`--lang-color: ${langColor}; view-transition-name: repo-${project.id};`}
-                  >
-                    <div class="card-header">
-                      <span class="project-name">{project.name}</span>
-                      <svg class="platform-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={githubSvg} />
-                    </div>
-                    {project.forkedFrom && (
-                      <span class="fork-from">forked from {project.forkedFrom}</span>
-                    )}
-                    <p class="project-desc">{project.description}</p>
-                    <div class="card-footer">
-                      <span class="lang-tag">
-                        <span class="lang-dot" />
-                        <span class="lang-name">{project.language}</span>
-                      </span>
-                      <span class="repo-flags">
-                        {project.archived && <span class="pill">archived</span>}
-                      </span>
-                      <span class="stars">
-                        <svg class="star-icon" viewBox="0 0 24 24" aria-hidden="true" set:html={starSvg} />
-                        <span>{project.stars}</span>
-                      </span>
-                    </div>
-                  </a>
-                );
-              })}
-            </div>
-          ) : (
-            <div id="project-grid" class="project-grid"></div>
-          )
-        }
-
-        <div id="empty-state" class:list={["empty", projects.length > 0 && "is-hidden"]}>
-          <p>could not load projects.</p>
-          <p class="empty-hint">github api may be rate-limited. try again later.</p>
-        </div>
-      </div>
-      <div class="more-hint" id="more-hint">scroll for more projects</div>
-    </section>
+    <ul class="project-list">
+      {
+        projects.map((project) => (
+          <li>
+            <a
+              href={project.url}
+              class="project-row"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <div class="row-main">
+                <span class="project-name">{project.name}</span>
+                <span class="project-desc">{project.description}</span>
+              </div>
+              <span class="lang-tag" style={`--lang-color: ${project.langColor};`}>
+                <span class="lang-dot" />
+                <span class="lang-name">{project.language}</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
 
     <footer class="back">
       <a href="/">← back</a>
@@ -210,638 +78,103 @@ const starSvg =
   </main>
 </Base>
 
-<script define:vars={{ seedProjects: projects, languageColors, githubSvg, starSvg }}>
-  const DESKTOP_WINDOW = 6;
-  const grid = document.querySelector("#project-grid");
-  const emptyState = document.querySelector("#empty-state");
-  const searchInput = document.querySelector("#repo-search");
-  const repoCount = document.querySelector("#repo-count");
-  const repoWindow = document.querySelector("#repo-window");
-  const stage = document.querySelector("#repo-stage");
-  const scrollUp = document.querySelector("#scroll-up");
-  const scrollDown = document.querySelector("#scroll-down");
-  const moreHint = document.querySelector("#more-hint");
-
-  let projects = [...seedProjects];
-  let filtered = [...projects];
-  let offset = 0;
-  let wheelRemainder = 0;
-  let isTransitioning = false;
-
-  const isMobile = () => window.innerWidth < 640;
-  const getWindowSize = () => (isMobile() ? filtered.length : DESKTOP_WINDOW);
-  const colorFor = (language) => languageColors[language] || languageColors.unknown;
-  const maxOffset = () => Math.max(0, filtered.length - getWindowSize());
-  const visibleProjects = () => filtered.slice(offset, offset + getWindowSize());
-
-  function escapeHtml(value) {
-    return String(value)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#39;");
-  }
-
-  function svg(className, path, viewBox = "0 0 24 24") {
-    return `<svg class="${className}" viewBox="${viewBox}" aria-hidden="true">${path}</svg>`;
-  }
-
-  function renderCard(project) {
-    const id = Number(project.id);
-    const name = escapeHtml(project.name);
-    const url = escapeHtml(project.url);
-    const language = escapeHtml(project.language);
-    const description = escapeHtml(project.description);
-    const stars = Number(project.stars) || 0;
-    const flags = [
-      project.archived ? '<span class="pill">archived</span>' : "",
-    ].join("");
-
-    const forkedFrom = project.forkedFrom ? escapeHtml(project.forkedFrom) : "";
-    const forkFromHtml = forkedFrom
-      ? `<span class="fork-from">forked from ${forkedFrom}</span>`
-      : "";
-
-    return `
-      <a
-        href="${url}"
-        class="project-card"
-        target="_blank"
-        rel="noopener noreferrer"
-        style="--lang-color: ${colorFor(project.language)}; view-transition-name: repo-${id};"
-      >
-        <div class="card-header">
-          <span class="project-name">${name}</span>
-          ${svg("platform-icon", githubSvg)}
-        </div>
-        ${forkFromHtml}
-        <p class="project-desc">${description}</p>
-        <div class="card-footer">
-          <span class="lang-tag">
-            <span class="lang-dot"></span>
-            <span class="lang-name">${language}</span>
-          </span>
-          <span class="repo-flags">${flags}</span>
-          <span class="stars">
-            ${svg("star-icon", starSvg)}
-            <span>${stars}</span>
-          </span>
-        </div>
-      </a>
-    `;
-  }
-
-  function updateMeta() {
-    const shown = visibleProjects().length;
-    repoCount.textContent = `${filtered.length} repo${filtered.length === 1 ? "" : "s"}`;
-    repoWindow.textContent = shown > 0 ? `showing ${offset + 1}-${offset + shown}` : "showing 0";
-
-    const canGoUp = offset > 0;
-    const canGoDown = offset < maxOffset();
-    if (scrollUp) scrollUp.disabled = !canGoUp;
-    if (scrollDown) scrollDown.disabled = !canGoDown;
-    if (moreHint) moreHint.classList.toggle("is-visible", canGoDown && !isMobile());
-  }
-
-  function render() {
-    const visible = visibleProjects();
-    grid.innerHTML = visible.map(renderCard).join("");
-    emptyState.classList.toggle("is-hidden", visible.length > 0);
-
-    if (visible.length === 0) {
-      const query = searchInput.value.trim();
-      emptyState.querySelector("p").textContent = query ? "no matching repos." : "could not load projects.";
-      emptyState.querySelector(".empty-hint").textContent = query
-        ? "try another name, language, or description."
-        : "github api may be rate-limited. try again later.";
-    }
-
-    updateMeta();
-  }
-
-  function withRepoTransition(direction, callback) {
-    document.documentElement.dataset.repoDirection = direction;
-
-    if (!document.startViewTransition || isMobile()) {
-      callback();
-      delete document.documentElement.dataset.repoDirection;
-      return;
-    }
-
-    isTransitioning = true;
-    const transition = document.startViewTransition(callback);
-    transition.finished.finally(() => {
-      isTransitioning = false;
-      delete document.documentElement.dataset.repoDirection;
-    });
-  }
-
-  function move(delta) {
-    if (isTransitioning || filtered.length <= getWindowSize()) return;
-
-    const next = Math.min(maxOffset(), Math.max(0, offset + delta));
-    if (next === offset) return;
-
-    const direction = next > offset ? "down" : "up";
-    withRepoTransition(direction, () => {
-      offset = next;
-      render();
-    });
-  }
-
-  function filterProjects(query) {
-    const normalizedQuery = query.trim().toLowerCase();
-
-    return projects.filter((project) => {
-      if (!normalizedQuery) return true;
-      return [project.name, project.description, project.language]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedQuery);
-    });
-  }
-
-  function applySearch() {
-    filtered = filterProjects(searchInput.value);
-
-    withRepoTransition("filter", () => {
-      offset = 0;
-      render();
-    });
-  }
-
-  searchInput.addEventListener("input", applySearch);
-
-  document.addEventListener(
-    "wheel",
-    (event) => {
-      if (isMobile()) return;
-      if (filtered.length <= getWindowSize()) return;
-      if (document.activeElement === searchInput) return;
-
-      const atTop = offset === 0;
-      const atBottom = offset >= maxOffset();
-      if (event.deltaY > 0 && atBottom) return;
-      if (event.deltaY < 0 && atTop) return;
-
-      event.preventDefault();
-
-      wheelRemainder += event.deltaY;
-      if (Math.abs(wheelRemainder) < 55) return;
-
-      move(wheelRemainder > 0 ? 1 : -1);
-      wheelRemainder = 0;
-    },
-    { passive: false },
-  );
-
-  document.addEventListener("keydown", (event) => {
-    if (event.target === searchInput) return;
-
-    if (["ArrowDown", "PageDown", "j"].includes(event.key)) {
-      event.preventDefault();
-      move(1);
-    }
-
-    if (["ArrowUp", "PageUp", "k"].includes(event.key)) {
-      event.preventDefault();
-      move(-1);
-    }
-
-    if (event.key === "Home") {
-      event.preventDefault();
-      move(-offset);
-    }
-
-    if (event.key === "End") {
-      event.preventDefault();
-      move(maxOffset() - offset);
-    }
-  });
-
-  let touchStartY = null;
-  stage.addEventListener("touchstart", (event) => {
-    touchStartY = event.touches[0]?.clientY ?? null;
-  });
-
-  stage.addEventListener("touchend", (event) => {
-    if (touchStartY === null) return;
-
-    const touchEndY = event.changedTouches[0]?.clientY ?? touchStartY;
-    const delta = touchStartY - touchEndY;
-    touchStartY = null;
-
-    if (Math.abs(delta) > 35) move(delta > 0 ? 1 : -1);
-  });
-
-  if (scrollUp) scrollUp.addEventListener("click", () => move(-1));
-  if (scrollDown) scrollDown.addEventListener("click", () => move(1));
-
-  function recalcWindowSize() {
-    const wasMobile = getWindowSize() === filtered.length;
-    const nowMobile = isMobile();
-    if (wasMobile !== nowMobile) {
-      offset = 0;
-      render();
-    }
-  }
-
-  window.addEventListener("resize", recalcWindowSize);
-
-  // Initial render in case server only sent 6 items but we're on mobile
-  if (isMobile() && filtered.length > DESKTOP_WINDOW) {
-    offset = 0;
-    render();
-  }
-
-  updateMeta();
-</script>
-
-<style is:global>
+<style>
   .projects-page {
-    display: flex;
     width: 100%;
-    max-width: 64rem;
-    min-height: calc(100dvh - 4rem);
-    flex-direction: column;
-    justify-content: flex-start;
+    max-width: 40rem;
     text-align: left;
   }
 
-  .projects-page .projects-header {
-    position: sticky;
-    top: 2rem;
-    z-index: 10;
-    padding-bottom: 0.75rem;
-    background: var(--bg);
+  .projects-header {
+    margin-bottom: 1.5rem;
   }
 
-  .projects-page .page-title {
+  .page-title {
     font-size: 1.5rem;
     font-weight: 400;
-    color: #fff;
-    letter-spacing: 0;
+    color: var(--text);
     line-height: 1.4;
     margin-bottom: 0.25rem;
   }
 
-  .projects-page .subtitle {
+  .subtitle {
     font-size: 0.875rem;
-    color: var(--comment);
-    margin-bottom: 1.5rem;
+    color: var(--fg);
     line-height: 1.4;
   }
 
-  .projects-page .repo-browser {
-    margin-bottom: 2rem;
-  }
-
-  .projects-page .search-wrap {
-    display: block;
-  }
-
-  .projects-page .search-label {
-    display: block;
-    margin-bottom: 0.4rem;
-    font-size: 0.75rem;
-    color: var(--comment);
-  }
-
-  .projects-page .repo-search {
-    width: 100%;
-    padding: 0.8rem 0.95rem;
-    color: var(--fg);
-    background: rgba(0, 0, 0, 0.18);
-    border: 1px solid rgba(171, 178, 191, 0.1);
-    border-radius: 0.5rem;
-    font: inherit;
-    outline: none;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
-  }
-
-  .projects-page .repo-search::placeholder {
-    color: var(--comment);
-  }
-
-  .projects-page .repo-search:focus {
-    border-color: rgba(97, 175, 239, 0.45);
-    background: rgba(0, 0, 0, 0.25);
-  }
-
-  .projects-page .repo-meta {
+  .project-list {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
     display: flex;
+    flex-direction: column;
+  }
+
+  .project-list li + li {
+    border-top: 1px solid rgba(198, 208, 245, 0.08);
+  }
+
+  .project-row {
+    display: flex;
+    align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1rem;
-    color: var(--comment);
-    font-size: 0.75rem;
-  }
-
-  @media (max-width: 639px) {
-    .projects-page #repo-window {
-      display: none;
-    }
-  }
-
-  .projects-page .repo-nav {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .projects-page .scroll-arrow {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    padding: 0;
+    padding: 0.9rem 0;
     color: var(--fg);
-    background: rgba(0, 0, 0, 0.18);
-    border: 1px solid rgba(171, 178, 191, 0.1);
-    border-radius: 0.35rem;
-    font-family: inherit;
-    font-size: 0.6rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: border-color 0.2s ease, opacity 0.2s ease;
+    transition: opacity 0.2s ease;
   }
 
-  .projects-page .scroll-arrow:hover:not(:disabled) {
-    border-color: rgba(97, 175, 239, 0.45);
+  .project-row:hover {
+    opacity: 0.7;
   }
 
-  .projects-page .scroll-arrow:disabled {
-    opacity: 0.25;
-    cursor: default;
-  }
-
-  .projects-page .more-hint {
-    margin-top: 0.75rem;
-    text-align: center;
-    color: var(--comment);
-    font-size: 0.75rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .projects-page .more-hint.is-visible {
-    opacity: 1;
-  }
-
-  .projects-page .repo-stage {
-    position: relative;
-    outline: none;
-    touch-action: pan-y;
-  }
-
-  .projects-page .repo-stage:focus-visible {
-    border-radius: 0.5rem;
-    outline: 1px solid rgba(97, 175, 239, 0.4);
-    outline-offset: 0.4rem;
-  }
-
-  .projects-page .project-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
-    gap: 0.85rem;
-    view-transition-name: repo-grid;
-  }
-
-  .projects-page .project-card {
+  .row-main {
     display: flex;
-    height: 11.5rem;
     flex-direction: column;
-    gap: 0.5rem;
-    padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(171, 178, 191, 0.08);
-    border-radius: 0.5rem;
-    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
-    overflow: hidden;
+    gap: 0.2rem;
+    min-width: 0;
   }
 
-  .projects-page .project-card:hover {
-    border-color: rgba(97, 175, 239, 0.35);
-    background-color: rgba(0, 0, 0, 0.22);
-    transform: translateY(-1px);
-  }
-
-  .projects-page .card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-
-  .projects-page .project-name {
-    overflow: hidden;
-    color: #fff;
+  .project-name {
+    color: var(--text);
     font-size: 1rem;
-    font-weight: 400;
-    letter-spacing: 0;
     line-height: 1.4;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
-  .projects-page .platform-icon {
-    width: 1.1rem;
-    height: 1.1rem;
-    color: var(--comment);
-    flex-shrink: 0;
-    transition: color 0.2s ease;
-  }
-
-  .projects-page .project-card:hover .platform-icon {
+  .project-desc {
     color: var(--fg);
-  }
-
-  .projects-page .project-desc {
-    display: -webkit-box;
-    overflow: hidden;
-    flex: 1;
-    color: var(--comment);
     font-size: 0.825rem;
     line-height: 1.45;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3;
   }
 
-  .projects-page .card-footer {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: center;
-    gap: 0.6rem;
-    margin-top: auto;
-    padding-top: 0.5rem;
-    border-top: 1px solid rgba(171, 178, 191, 0.06);
-  }
-
-  .projects-page .lang-tag,
-  .projects-page .stars,
-  .projects-page .repo-flags {
+  .lang-tag {
     display: inline-flex;
     align-items: center;
-  }
-
-  .projects-page .lang-tag {
-    min-width: 0;
     gap: 0.4rem;
-    color: var(--comment);
+    flex-shrink: 0;
+    color: var(--overlay);
     font-size: 0.8rem;
   }
 
-  .projects-page .lang-dot {
+  .lang-dot {
     width: 0.6rem;
     height: 0.6rem;
     border-radius: 50%;
     background-color: var(--lang-color);
-    flex-shrink: 0;
   }
 
-  .projects-page .lang-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-transform: lowercase;
-    white-space: nowrap;
-  }
-
-  .projects-page .repo-flags {
-    gap: 0.35rem;
-  }
-
-  .projects-page .pill {
-    padding: 0.08rem 0.35rem;
-    color: var(--comment);
-    background: rgba(171, 178, 191, 0.07);
-    border-radius: 999px;
-    font-size: 0.65rem;
-  }
-
-  .projects-page .fork-from {
-    color: var(--comment);
-    font-size: 0.65rem;
-  }
-
-  .projects-page .stars {
-    gap: 0.35rem;
-    color: var(--comment);
-    font-size: 0.8rem;
-  }
-
-  .projects-page .star-icon {
-    width: 0.85rem;
-    height: 0.85rem;
-    color: var(--yellow);
-  }
-
-  .projects-page .empty {
-    margin-bottom: 2rem;
-    padding: 2rem 0;
-    color: var(--comment);
+  .back {
+    color: var(--overlay);
     font-size: 0.875rem;
   }
 
-  .projects-page .empty.is-hidden {
-    display: none;
-  }
-
-  .projects-page .empty-hint {
-    margin-top: 0.5rem;
-    color: var(--comment);
-    font-size: 0.8rem;
-    opacity: 0.7;
-  }
-
-  .projects-page .back {
-    color: var(--comment);
-    font-size: 0.875rem;
-  }
-
-  .projects-page .back a {
-    color: var(--comment);
+  .back a {
+    color: var(--overlay);
     transition: color 0.2s ease;
   }
 
-  .projects-page .back a:hover {
-    color: var(--fg);
-  }
-
-  @keyframes repo-out-down {
-    to {
-      opacity: 0;
-      transform: translateY(-1.25rem);
-    }
-  }
-
-  @keyframes repo-in-down {
-    from {
-      opacity: 0;
-      transform: translateY(1.25rem);
-    }
-  }
-
-  @keyframes repo-out-up {
-    to {
-      opacity: 0;
-      transform: translateY(1.25rem);
-    }
-  }
-
-  @keyframes repo-in-up {
-    from {
-      opacity: 0;
-      transform: translateY(-1.25rem);
-    }
-  }
-
-  @keyframes repo-fade-out {
-    to {
-      opacity: 0;
-      transform: scale(0.985);
-    }
-  }
-
-  @keyframes repo-fade-in {
-    from {
-      opacity: 0;
-      transform: scale(0.985);
-    }
-  }
-
-  html[data-repo-direction="down"]::view-transition-old(repo-grid) {
-    animation: repo-out-down 180ms ease both;
-  }
-
-  html[data-repo-direction="down"]::view-transition-new(repo-grid) {
-    animation: repo-in-down 220ms ease both;
-  }
-
-  html[data-repo-direction="up"]::view-transition-old(repo-grid) {
-    animation: repo-out-up 180ms ease both;
-  }
-
-  html[data-repo-direction="up"]::view-transition-new(repo-grid) {
-    animation: repo-in-up 220ms ease both;
-  }
-
-  html[data-repo-direction="filter"]::view-transition-old(repo-grid) {
-    animation: repo-fade-out 130ms ease both;
-  }
-
-  html[data-repo-direction="filter"]::view-transition-new(repo-grid) {
-    animation: repo-fade-in 180ms ease both;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .projects-page *,
-    .projects-page *::before,
-    .projects-page *::after {
-      animation-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-      transition-duration: 0.01ms !important;
-    }
+  .back a:hover {
+    color: var(--text);
   }
 </style>
