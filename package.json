@@ -1,16 +1,16 @@
 {
   "name": "zekurio-me",
   "version": "0.0.1",
-  "type": "module",
   "private": true,
-  "packageManager": "pnpm@10.12.1",
-  "engines": {
-    "node": ">=24.14.0"
-  },
+  "type": "module",
   "scripts": {
     "dev": "astro dev",
     "start": "astro preview --host 0.0.0.0 --port ${PORT:-4321}",
     "build": "astro build",
+    "format": "oxfmt .",
+    "format:check": "oxfmt . --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
     "preview": "pnpm run build && wrangler dev",
     "generate-types": "wrangler types",
     "deploy": "pnpm run build && wrangler deploy"
@@ -22,9 +22,15 @@
     "astro-icon": "^1.1.5"
   },
   "devDependencies": {
+    "oxfmt": "^0.54.0",
+    "oxlint": "^1.69.0",
     "wrangler": "^4.93.1"
   },
   "overrides": {
     "vite": "^7"
-  }
+  },
+  "engines": {
+    "node": ">=24.14.0"
+  },
+  "packageManager": "pnpm@10.12.1"
 }
