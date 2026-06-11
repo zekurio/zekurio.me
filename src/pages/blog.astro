@@ -1,9 +1,23 @@
 ---
+import type { MarkdownInstance } from "astro";
 import Base from "../layouts/Base.astro";
 
-const postModules = import.meta.glob("../content/posts/*.md", { eager: true });
+interface PostFrontmatter {
+  title: string;
+  date: string | Date;
+}
+
+type Post = MarkdownInstance<PostFrontmatter>;
+
+const postModules = import.meta.glob<Post>("../content/posts/*.md", {
+  eager: true,
+});
 const posts = Object.values(postModules);
-posts.sort((a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date));
+posts.sort(
+  (a, b) =>
+    new Date(b.frontmatter.date).getTime() -
+    new Date(a.frontmatter.date).getTime(),
+);
 ---
 
 <Base>
