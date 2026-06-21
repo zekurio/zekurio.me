@@ -1,173 +1,209 @@
 ---
 import Base from "../layouts/Base.astro";
 
+const langColors = {
+    astro: "#f4b8e4",
+    c: "#8caaee",
+    cpp: "#ca9ee6",
+    csharp: "#a6d189",
+    css: "#85c1dc",
+    dart: "#99d1db",
+    go: "#81c8be",
+    html: "#ef9f76",
+    java: "#e78284",
+    javascript: "#e5c890",
+    kotlin: "#f4b8e4",
+    nix: "#ca9ee6",
+    php: "#babbf1",
+    python: "#e5c890",
+    ruby: "#e78284",
+    rust: "#ef9f76",
+    shell: "#a6d189",
+    svelte: "#ef9f76",
+    swift: "#ef9f76",
+    typescript: "#8caaee",
+    vue: "#a6d189",
+    zig: "#e5c890",
+} as const;
+
+type Language = keyof typeof langColors;
+
 interface Project {
-  name: string;
-  description: string;
-  url: string;
-  language: string;
-  langColor: string;
+    name: string;
+    description: string;
+    url: string;
+    language: Language;
 }
 
 const projects: Project[] = [
-  {
-    name: "alloy",
-    description: "open-source and self-hostable alternative to Medal.tv",
-    url: "https://github.com/zekurio/alloy",
-    language: "typescript",
-    langColor: "#8caaee",
-  },
-  {
-    name: "blitzcrank",
-    description: "a support agent for my homelab — built on top of Pi",
-    url: "https://github.com/zekurio/blitzcrank",
-    language: "go",
-    langColor: "#81c8be",
-  },
-  {
-    name: "nix",
-    description: "my nix config — use at own risk",
-    url: "https://github.com/zekurio/nix",
-    language: "nix",
-    langColor: "#ca9ee6",
-  },
+    {
+        name: "alloy",
+        description: "open-source and self-hostable alternative to Medal.tv",
+        url: "https://github.com/zekurio/alloy",
+        language: "typescript",
+    },
+    {
+        name: "blitzcrank",
+        description: "a support agent for my homelab — built on top of Pi",
+        url: "https://github.com/zekurio/blitzcrank",
+        language: "go",
+    },
+    {
+        name: "zugluft",
+        description: "native rust fan-control tool for windows",
+        url: "https://github.com/zekurio/zugluft",
+        language: "rust",
+    },
+    {
+        name: "nix",
+        description: "my nix config — use at own risk",
+        url: "https://github.com/zekurio/nix",
+        language: "nix",
+    },
 ];
 ---
 
 <Base>
-  <main class="projects-page">
-    <header class="projects-header">
-      <h1 class="page-title">projects</h1>
-      <p class="subtitle">a few things i've been working on.</p>
-    </header>
+    <main class="projects-page">
+        <header class="projects-header">
+            <h1 class="page-title">projects</h1>
+            <p class="subtitle">a few things i've been working on.</p>
+        </header>
 
-    <ul class="project-list">
-      {
-        projects.map((project) => (
-          <li>
-            <a
-              href={project.url}
-              class="project-row"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div class="row-main">
-                <span class="project-name">{project.name}</span>
-                <span class="project-desc">{project.description}</span>
-              </div>
-              <span class="lang-tag" style={`--lang-color: ${project.langColor};`}>
-                <span class="lang-dot" />
-                <span class="lang-name">{project.language}</span>
-              </span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+        <ul class="project-list">
+            {
+                projects.map((project) => (
+                    <li>
+                        <a
+                            href={project.url}
+                            class="project-row"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <div class="row-main">
+                                <span class="project-name">{project.name}</span>
+                                <span class="project-desc">
+                                    {project.description}
+                                </span>
+                            </div>
+                            <span
+                                class="lang-tag"
+                                style={`--lang-color: ${langColors[project.language]};`}
+                            >
+                                <span class="lang-dot" />
+                                <span class="lang-name">
+                                    {project.language}
+                                </span>
+                            </span>
+                        </a>
+                    </li>
+                ))
+            }
+        </ul>
 
-    <footer class="back">
-      <a href="/">← back</a>
-    </footer>
-  </main>
+        <footer class="back">
+            <a href="/">← back</a>
+        </footer>
+    </main>
 </Base>
 
 <style>
-  .projects-page {
-    width: 100%;
-    max-width: 40rem;
-    text-align: left;
-  }
+    .projects-page {
+        width: 100%;
+        max-width: 40rem;
+        text-align: left;
+    }
 
-  .projects-header {
-    margin-bottom: 1.5rem;
-  }
+    .projects-header {
+        margin-bottom: 1.5rem;
+    }
 
-  .page-title {
-    font-size: 1.5rem;
-    font-weight: 400;
-    color: var(--text);
-    line-height: 1.4;
-    margin-bottom: 0.25rem;
-  }
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: var(--text);
+        line-height: 1.4;
+        margin-bottom: 0.25rem;
+    }
 
-  .subtitle {
-    font-size: 0.875rem;
-    color: var(--fg);
-    line-height: 1.4;
-  }
+    .subtitle {
+        font-size: 0.875rem;
+        color: var(--fg);
+        line-height: 1.4;
+    }
 
-  .project-list {
-    list-style: none;
-    margin: 0 0 2rem;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-  }
+    .project-list {
+        list-style: none;
+        margin: 0 0 2rem;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
 
-  .project-list li + li {
-    border-top: 1px solid rgba(198, 208, 245, 0.08);
-  }
+    .project-list li + li {
+        border-top: 1px solid rgba(198, 208, 245, 0.08);
+    }
 
-  .project-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.9rem 0;
-    color: var(--fg);
-    transition: opacity 0.2s ease;
-  }
+    .project-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.9rem 0;
+        color: var(--fg);
+        transition: opacity 0.2s ease;
+    }
 
-  .project-row:hover {
-    opacity: 0.7;
-  }
+    .project-row:hover {
+        opacity: 0.7;
+    }
 
-  .row-main {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    min-width: 0;
-  }
+    .row-main {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        min-width: 0;
+    }
 
-  .project-name {
-    color: var(--text);
-    font-size: 1rem;
-    line-height: 1.4;
-  }
+    .project-name {
+        color: var(--text);
+        font-size: 1rem;
+        line-height: 1.4;
+    }
 
-  .project-desc {
-    color: var(--fg);
-    font-size: 0.825rem;
-    line-height: 1.45;
-  }
+    .project-desc {
+        color: var(--fg);
+        font-size: 0.825rem;
+        line-height: 1.45;
+    }
 
-  .lang-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    flex-shrink: 0;
-    color: var(--overlay);
-    font-size: 0.8rem;
-  }
+    .lang-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex-shrink: 0;
+        color: var(--overlay);
+        font-size: 0.8rem;
+    }
 
-  .lang-dot {
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 50%;
-    background-color: var(--lang-color);
-  }
+    .lang-dot {
+        width: 0.6rem;
+        height: 0.6rem;
+        border-radius: 50%;
+        background-color: var(--lang-color);
+    }
 
-  .back {
-    color: var(--overlay);
-    font-size: 0.875rem;
-  }
+    .back {
+        color: var(--overlay);
+        font-size: 0.875rem;
+    }
 
-  .back a {
-    color: var(--overlay);
-    transition: color 0.2s ease;
-  }
+    .back a {
+        color: var(--overlay);
+        transition: color 0.2s ease;
+    }
 
-  .back a:hover {
-    color: var(--text);
-  }
+    .back a:hover {
+        color: var(--text);
+    }
 </style>
