@@ -1,6 +1,6 @@
 ---
-title: "hello world"
-date: 2025-05-21
+title: "Hello World"
+date: 2026-05-21
 ---
 
 I'm Michael! I am nerdy about a lot of stuff, and I want to start writing about it. So this will be the place to host my writing.
