@@ -1,0 +1,134 @@
+---
+import Base from "../layouts/Base.astro";
+import { getHomelabSystems } from "../lib/homelab";
+
+const systems = getHomelabSystems();
+---
+
+<Base>
+  <main class="homelab-page">
+    <header class="homelab-header">
+      <h1 class="page-title" transition:name="homelab-title">homelab</h1>
+      <p class="subtitle">systems currently in use, with notes and specs.</p>
+    </header>
+
+    {
+      systems.length > 0 ? (
+        <nav class="system-list" aria-label="homelab systems">
+          {systems.map((system) => {
+            const filename = system.file.split("/").pop() ?? "";
+            const slug = filename.replace(".md", "");
+            return (
+              <a
+                href={`/homelab/${slug}`}
+                class="system-row"
+                transition:name={`homelab-${slug}`}
+              >
+                <span class="system-main">
+                  <span class="system-title">{system.frontmatter.title}</span>
+                  <span class="system-desc">{system.frontmatter.description}</span>
+                </span>
+              </a>
+            );
+          })}
+        </nav>
+      ) : (
+        <p class="empty">no systems published yet.</p>
+      )
+    }
+
+    <footer class="back">
+      <a href="/">← back</a>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  .homelab-page {
+    width: 100%;
+    max-width: 40rem;
+    text-align: left;
+  }
+
+  .homelab-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: 0;
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: var(--comment);
+    line-height: 1.4;
+  }
+
+  .system-list {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+  }
+
+  .system-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    color: var(--fg);
+    transition: opacity 0.2s ease;
+  }
+
+  .system-row + .system-row {
+    border-top: 1px solid rgba(198, 208, 245, 0.08);
+  }
+
+  .system-row:hover {
+    opacity: 0.7;
+  }
+
+  .system-main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .system-title {
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  .system-desc {
+    color: var(--fg);
+    font-size: 0.825rem;
+    line-height: 1.45;
+  }
+
+  .empty {
+    margin-bottom: 2rem;
+    color: var(--overlay);
+    font-size: 0.875rem;
+  }
+
+  .back {
+    color: var(--overlay);
+    font-size: 0.875rem;
+  }
+
+  .back a {
+    color: var(--overlay);
+    transition: color 0.2s ease;
+  }
+
+  .back a:hover {
+    color: var(--text);
+  }
+</style>
