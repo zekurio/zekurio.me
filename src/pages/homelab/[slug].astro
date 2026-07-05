@@ -1,0 +1,264 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getHomelabSystems } from "../../lib/homelab";
+import type { HomelabSystem } from "../../lib/homelab";
+
+export async function getStaticPaths() {
+  return getHomelabSystems().map((system) => {
+    const filename = system.file.split("/").pop() ?? "";
+    return {
+      params: { slug: filename.replace(".md", "") },
+      props: { system },
+    };
+  });
+}
+
+const { system } = Astro.props as { system: HomelabSystem };
+const filename = system.file.split("/").pop() ?? "";
+const slug = filename.replace(".md", "");
+const specs = system.frontmatter.specs ?? [];
+const specOrder = [
+  "cpu",
+  "cooler",
+  "ram",
+  "mb",
+  "flash",
+  "spinning rust",
+  "gpu",
+  "psu",
+  "case",
+];
+const specsByLabel = Object.fromEntries(specs.map((spec) => [spec.label, spec])) as Record<
+  string,
+  (typeof specs)[number]
+>;
+const orderedSpecs = specOrder.flatMap((label) => {
+  const spec = specsByLabel[label];
+  if (!spec) {
+    return [];
+  }
+  const displayLabel = label === "gpu" && spec.count && spec.count > 1 ? "gpus" : label;
+  return [[displayLabel, spec.value]];
+});
+const os = system.frontmatter.os ?? specsByLabel.os?.value;
+if (os) {
+  orderedSpecs.push(["os", os]);
+}
+if (system.frontmatter.role) {
+  orderedSpecs.push(["role", system.frontmatter.role]);
+}
+---
+
+<Base>
+  <main class="system-page">
+    <article>
+      <header>
+        <h1 class="system-title" transition:name={`homelab-${slug}`}>
+          {system.frontmatter.title}
+        </h1>
+        <p class="description">{system.frontmatter.description}</p>
+      </header>
+
+      <div class="divider"></div>
+
+      {
+        orderedSpecs.length > 0 ? (
+          <section class="spec-sheet" aria-labelledby="spec-heading">
+            <h2 id="spec-heading">specs</h2>
+            <dl>
+              {orderedSpecs.map(([label, value]) => (
+                <div class="spec-row">
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ) : null
+      }
+
+      <div class="content" set:html={system.compiledContent()} />
+    </article>
+
+    <footer class="back">
+      <a href="/homelab">← all systems</a>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  .system-page {
+    width: 100%;
+    max-width: 42rem;
+    text-align: left;
+  }
+
+  .system-title {
+    color: var(--text);
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+  }
+
+  .description {
+    color: var(--comment);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+  }
+
+  .divider {
+    height: 1px;
+    background-color: rgba(198, 208, 245, 0.15);
+    margin-bottom: 2rem;
+  }
+
+  .spec-sheet {
+    margin-bottom: 2rem;
+  }
+
+  .spec-sheet h2 {
+    margin-bottom: 0.85rem;
+    color: var(--comment);
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .spec-sheet dl {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .spec-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .spec-row + .spec-row {
+    border-top: 1px solid rgba(198, 208, 245, 0.08);
+  }
+
+  .spec-row dt {
+    flex-shrink: 0;
+    color: var(--comment);
+  }
+
+  .spec-row dd {
+    min-width: 0;
+    color: var(--fg);
+    text-align: right;
+  }
+
+  .content:empty {
+    display: none;
+  }
+
+  .content :global(p) {
+    margin-bottom: 1.25rem;
+    line-height: 1.75;
+  }
+
+  .content :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .content :global(a) {
+    color: var(--blue);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.2s ease;
+  }
+
+  .content :global(a:hover) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .content :global(strong) {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  .content :global(em) {
+    font-style: italic;
+  }
+
+  .content :global(ul),
+  .content :global(ol) {
+    margin-bottom: 1.25rem;
+    padding-left: 1.5rem;
+  }
+
+  .content :global(li) {
+    margin-bottom: 0.5rem;
+    line-height: 1.75;
+  }
+
+  .content :global(code) {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.875em;
+    background-color: rgba(198, 208, 245, 0.08);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+  }
+
+  .content :global(pre) {
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    background-color: #292c3c;
+    border-radius: 0.375rem;
+    overflow-x: auto;
+  }
+
+  .content :global(pre code) {
+    background: none;
+    padding: 0;
+  }
+
+  .content :global(h2),
+  .content :global(h3) {
+    color: var(--text);
+    font-weight: 400;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+
+  .content :global(h2) {
+    font-size: 1.25rem;
+  }
+
+  .content :global(h3) {
+    font-size: 1.1rem;
+  }
+
+  .content :global(blockquote) {
+    border-left: 2px solid var(--blue);
+    padding-left: 1rem;
+    margin-bottom: 1.25rem;
+    color: var(--fg);
+  }
+
+  .back {
+    margin-top: 3rem;
+    font-size: 0.875rem;
+    color: var(--comment);
+  }
+
+  .back a {
+    color: var(--comment);
+    transition: color 0.2s ease;
+  }
+
+  .back a:hover {
+    color: var(--fg);
+  }
+</style>
