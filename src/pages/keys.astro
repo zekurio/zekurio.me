@@ -1,0 +1,228 @@
+---
+import Base from "../layouts/Base.astro";
+import { getPublicKeys } from "../lib/keys";
+
+const keys = await getPublicKeys();
+---
+
+<Base>
+  <main class="keys-page">
+    <header class="keys-header">
+      <h1 class="page-title">keys</h1>
+      <p class="subtitle">
+        ssh &amp; gpg public keys, synced from <a
+          href="https://github.com/zekurio"
+          target="_blank"
+          rel="noopener noreferrer">github</a
+        >. raw: <a href="/zekurio.keys">.keys</a> · <a href="/zekurio.gpg"
+          >.gpg</a
+        >.
+      </p>
+    </header>
+
+    <section class="key-group">
+      <h2 class="group-title">ssh</h2>
+      {
+        keys.ssh.length === 0 ? (
+          <p class="empty">no ssh keys published.</p>
+        ) : (
+          <ul class="key-list">
+            {keys.ssh.map((key) => (
+              <li class="key-item">
+                <div class="key-meta">
+                  <span class="key-type">{key.type}</span>
+                  <span class="key-fp">{key.fingerprint}</span>
+                </div>
+                <div class="key-value">
+                  <code>{key.value}</code>
+                  <button class="copy" data-copy={key.value} type="button">
+                    copy
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </section>
+
+    <section class="key-group">
+      <h2 class="group-title">gpg</h2>
+      {
+        keys.gpg ? (
+          <div class="key-value block">
+            <pre>{keys.gpg}</pre>
+            <button class="copy" data-copy={keys.gpg} type="button">
+              copy
+            </button>
+          </div>
+        ) : (
+          <p class="empty">no gpg keys published.</p>
+        )
+      }
+    </section>
+
+    <footer class="back">
+      <a href="/">← back</a>
+    </footer>
+  </main>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>(".copy").forEach((button) => {
+    button.addEventListener("click", () => {
+      const text = button.dataset.copy;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = button.textContent;
+        button.textContent = "copied";
+        setTimeout(() => {
+          button.textContent = original;
+        }, 1200);
+      });
+    });
+  });
+</script>
+
+<style>
+  .keys-page {
+    width: 100%;
+    max-width: 42rem;
+    text-align: left;
+  }
+
+  .keys-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.4;
+    margin-bottom: 0.25rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: var(--comment);
+    line-height: 1.4;
+  }
+
+  .subtitle a {
+    color: var(--blue);
+    transition: opacity 0.2s ease;
+  }
+
+  .subtitle a:hover {
+    opacity: 0.75;
+  }
+
+  .key-group {
+    margin-bottom: 2.5rem;
+  }
+
+  .group-title {
+    font-size: 0.8rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--overlay);
+    margin-bottom: 1rem;
+  }
+
+  .key-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .key-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .key-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .key-type {
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+
+  .key-fp {
+    color: var(--comment);
+    font-size: 0.8rem;
+    word-break: break-all;
+  }
+
+  .key-value {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    background-color: rgba(198, 208, 245, 0.05);
+    border: 1px solid rgba(198, 208, 245, 0.08);
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+  }
+
+  .key-value code,
+  .key-value pre {
+    flex: 1;
+    min-width: 0;
+    font-family: inherit;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--fg);
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 0;
+  }
+
+  .copy {
+    flex-shrink: 0;
+    font-family: inherit;
+    font-size: 0.75rem;
+    color: var(--overlay);
+    background: none;
+    border: 1px solid rgba(198, 208, 245, 0.12);
+    border-radius: 0.25rem;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .copy:hover {
+    color: var(--text);
+    border-color: rgba(198, 208, 245, 0.25);
+  }
+
+  .empty {
+    font-size: 0.85rem;
+    color: var(--comment);
+  }
+
+  .back {
+    font-size: 0.875rem;
+    color: var(--comment);
+  }
+
+  .back a {
+    color: var(--comment);
+    transition: color 0.2s ease;
+  }
+
+  .back a:hover {
+    color: var(--fg);
+  }
+</style>
