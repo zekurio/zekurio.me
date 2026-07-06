@@ -16,15 +16,15 @@
     "deploy": "pnpm run build && wrangler deploy"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.109",
-    "@iconify-json/simple-icons": "^1.2.83",
+    "@iconify-json/lucide": "^1.2.116",
+    "@iconify-json/simple-icons": "^1.2.89",
     "astro": "^7.0.6",
     "astro-icon": "^1.1.5"
   },
   "devDependencies": {
-    "oxfmt": "^0.54.0",
-    "oxlint": "^1.69.0",
-    "oxlint-tsgolint": "^0.23.0",
+    "oxfmt": "^0.57.0",
+    "oxlint": "^1.72.0",
+    "oxlint-tsgolint": "^0.24.0",
     "wrangler": "^4.107.0"
   },
   "engines": {
