@@ -2,28 +2,28 @@
 import Base from "../layouts/Base.astro";
 
 const langColors = {
-    astro: "#f4b8e4",
-    c: "#8caaee",
-    cpp: "#ca9ee6",
-    csharp: "#a6d189",
-    css: "#85c1dc",
-    dart: "#99d1db",
-    go: "#81c8be",
-    html: "#ef9f76",
-    java: "#e78284",
-    javascript: "#e5c890",
-    kotlin: "#f4b8e4",
-    nix: "#ca9ee6",
-    php: "#babbf1",
-    python: "#e5c890",
-    ruby: "#e78284",
-    rust: "#ef9f76",
-    shell: "#a6d189",
-    svelte: "#ef9f76",
-    swift: "#ef9f76",
-    typescript: "#8caaee",
-    vue: "#a6d189",
-    zig: "#e5c890",
+    astro: "var(--pink)",
+    c: "var(--blue)",
+    cpp: "var(--purple)",
+    csharp: "var(--green)",
+    css: "var(--sapphire)",
+    dart: "var(--sky)",
+    go: "var(--cyan)",
+    html: "var(--orange)",
+    java: "var(--red)",
+    javascript: "var(--yellow)",
+    kotlin: "var(--pink)",
+    nix: "var(--purple)",
+    php: "var(--lavender)",
+    python: "var(--yellow)",
+    ruby: "var(--red)",
+    rust: "var(--orange)",
+    shell: "var(--green)",
+    svelte: "var(--orange)",
+    swift: "var(--orange)",
+    typescript: "var(--blue)",
+    vue: "var(--green)",
+    zig: "var(--yellow)",
 } as const;
 
 type Language = keyof typeof langColors;
@@ -141,7 +141,7 @@ const projects: Project[] = [
     }
 
     .project-list li + li {
-        border-top: 1px solid rgba(198, 208, 245, 0.08);
+        border-top: 1px solid var(--border);
     }
 
     .project-row {
