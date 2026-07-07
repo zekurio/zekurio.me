@@ -6,6 +6,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (() => {
+        let theme = null;
+        try {
+          theme = localStorage.getItem("theme");
+        } catch {
+          /* localStorage may be unavailable (private mode, sandboxed) */
+        }
+        if (theme !== "light" && theme !== "dark") {
+          theme = matchMedia("(prefers-color-scheme: light)").matches
+            ? "light"
+            : "dark";
+        }
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     <meta
       name="description"
       content="Personal website of Michael S., featuring projects, homelab notes, blog posts, and social links."
@@ -30,6 +46,7 @@
       }
 
       :root {
+        color-scheme: dark;
         /* Catppuccin Frappé */
         --bg: #303446; /* base */
         --text: #c6d0f5; /* text — headings */
@@ -43,6 +60,37 @@
         --cyan: #81c8be; /* teal */
         --blue: #8caaee;
         --purple: #ca9ee6; /* mauve */
+        --pink: #f4b8e4;
+        --sky: #99d1db;
+        --sapphire: #85c1dc;
+        --lavender: #babbf1;
+        --code-bg: #292c3c; /* mantle */
+        --border: rgba(198, 208, 245, 0.08);
+        --divider: rgba(198, 208, 245, 0.15);
+      }
+
+      :root[data-theme="light"] {
+        color-scheme: light;
+        /* Catppuccin Latte — fuller, more saturated accents */
+        --bg: #eff1f5; /* base */
+        --text: #4c4f69; /* text — headings */
+        --fg: #4c4f69; /* text — body copy */
+        --overlay: #6c6f85; /* subtext0 — secondary labels */
+        --comment: #8c8fa1; /* overlay1 — muted */
+        --red: #d20f39;
+        --orange: #fe640b; /* peach */
+        --yellow: #df8e1d;
+        --green: #40a02b;
+        --cyan: #179299; /* teal */
+        --blue: #1e66f5;
+        --purple: #8839ef; /* mauve */
+        --pink: #ea76cb;
+        --sky: #04a5e5;
+        --sapphire: #209fb5;
+        --lavender: #7287fd;
+        --code-bg: #e6e9ef; /* mantle */
+        --border: rgba(76, 79, 105, 0.1);
+        --divider: rgba(76, 79, 105, 0.16);
       }
 
       *,
@@ -56,6 +104,9 @@
       html {
         background-color: var(--bg);
         color: var(--fg);
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
         font-family: "IBM Plex Mono", monospace;
         font-size: 16px;
         line-height: 1.6;
@@ -76,9 +127,126 @@
         color: var(--fg);
         text-decoration: none;
       }
+
+      .theme-toggle {
+        position: fixed;
+        top: 1.25rem;
+        right: 1.25rem;
+        z-index: 20;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        border: none;
+        border-radius: 0.375rem;
+        background: transparent;
+        color: var(--comment);
+        cursor: pointer;
+        transition:
+          color 0.2s ease,
+          background-color 0.2s ease;
+      }
+
+      .theme-toggle:hover {
+        color: var(--fg);
+        background-color: var(--border);
+      }
+
+      .theme-toggle:focus-visible {
+        outline: 1px solid var(--blue);
+        outline-offset: 2px;
+      }
+
+      .theme-toggle svg {
+        display: block;
+        width: 1.1rem;
+        height: 1.1rem;
+      }
+
+      .theme-toggle .icon-moon {
+        display: none;
+      }
+
+      :root[data-theme="light"] .theme-toggle .icon-sun {
+        display: none;
+      }
+
+      :root[data-theme="light"] .theme-toggle .icon-moon {
+        display: block;
+      }
     </style>
   </head>
   <body>
+    <button class="theme-toggle" type="button" aria-label="Switch theme">
+      <svg
+        class="icon-sun"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="4"></circle>
+        <path
+          d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+        ></path>
+      </svg>
+      <svg
+        class="icon-moon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
     <slot />
+    <script>
+      const root = document.documentElement;
+      const toggle = document.querySelector(".theme-toggle");
+      const media = matchMedia("(prefers-color-scheme: light)");
+      const label = (theme) =>
+        theme === "light" ? "Switch to dark theme" : "Switch to light theme";
+
+      const storedTheme = () => {
+        try {
+          return localStorage.getItem("theme");
+        } catch {
+          return null;
+        }
+      };
+
+      const apply = (theme) => {
+        root.dataset.theme = theme;
+        toggle?.setAttribute("aria-label", label(theme));
+      };
+
+      apply(root.dataset.theme);
+
+      toggle?.addEventListener("click", () => {
+        const next = root.dataset.theme === "light" ? "dark" : "light";
+        try {
+          localStorage.setItem("theme", next);
+        } catch {
+          /* ignore persistence failures */
+        }
+        apply(next);
+      });
+
+      // Follow the OS theme live, unless the visitor picked one explicitly.
+      media.addEventListener("change", (event) => {
+        if (storedTheme() === null) {
+          apply(event.matches ? "light" : "dark");
+        }
+      });
+    </script>
   </body>
 </html>
