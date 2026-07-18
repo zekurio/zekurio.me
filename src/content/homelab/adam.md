@@ -11,7 +11,7 @@ specs:
     value: "32gb ram"
   - label: "flash"
     count: 2
-    value: "2 × 256gbsamsung 870 evo ssds boot zfs mirror"
+    value: "2 × 256gb in zfs mirror (boot/root)"
   - label: "spinning rust"
     count: 3
     value: "2 × 8tb in zfs mirror"
