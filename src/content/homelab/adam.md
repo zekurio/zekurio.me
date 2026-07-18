@@ -11,10 +11,10 @@ specs:
     value: "32gb ram"
   - label: "flash"
     count: 2
-    value: "2 × samsung 870 evo ssds boot zfs mirror"
+    value: "2 × 256gbsamsung 870 evo ssds boot zfs mirror"
   - label: "spinning rust"
     count: 3
-    value: "3 × 8tb in zraid1"
+    value: "2 × 8tb in zfs mirror"
   - label: "gpu"
     count: 1
     value: "intel arc a380"
