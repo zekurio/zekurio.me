@@ -1,7 +1,7 @@
 ---
 title: "adam"
-description: "compact homelab system with zraid1 storage and dedicated arc graphics."
-role: "storage / compute"
+description: "big boi. the og. the first server. used for storage + hosting."
+role: "storage"
 status: "active"
 os: "nixos 26.11 (unstable)"
 specs:
