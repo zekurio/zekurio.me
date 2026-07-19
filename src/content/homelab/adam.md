@@ -11,15 +11,15 @@ components:
     name: "ddr4"
     size: "32gb"
   - category: storage
+    label: "flash"
     name: "samsung 870 evo"
     count: 2
     size: "256gb"
-    note: "zfs mirror (boot/root)"
   - category: storage
+    label: "spinning rust"
     name: "seagate ironwolf pro"
     count: 2
     size: "8tb"
-    note: "zfs mirror"
   - category: gpu
     name: "intel arc a380"
   - category: psu

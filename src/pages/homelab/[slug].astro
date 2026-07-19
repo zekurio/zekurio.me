@@ -1,6 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { formatComponent, getHomelabSystems, orderComponents } from "../../lib/homelab";
+import { formatComponent, getHomelabSystems, groupComponents } from "../../lib/homelab";
 import type { HomelabSystem } from "../../lib/homelab";
 
 export async function getStaticPaths() {
@@ -16,7 +16,7 @@ export async function getStaticPaths() {
 const { system } = Astro.props as { system: HomelabSystem };
 const filename = system.file.split("/").pop() ?? "";
 const slug = filename.replace(".md", "");
-const components = orderComponents(system.frontmatter.components ?? []);
+const componentGroups = groupComponents(system.frontmatter.components ?? []);
 const systemRows: [string, string][] = [];
 if (system.frontmatter.os) {
   systemRows.push(["os", system.frontmatter.os]);
@@ -39,16 +39,22 @@ if (system.frontmatter.role) {
       <div class="divider"></div>
 
       {
-        components.length > 0 || systemRows.length > 0 ? (
+        componentGroups.length > 0 || systemRows.length > 0 ? (
           <section class="spec-sheet" aria-labelledby="spec-heading">
             <h2 id="spec-heading">specs</h2>
             <dl>
-              {components.map((component) => (
+              {componentGroups.map((group) => (
                 <div class="spec-row">
-                  <dt>{component.category}</dt>
+                  <dt>{group.category}</dt>
                   <dd>
-                    {formatComponent(component)}
-                    {component.note ? <span class="spec-note">{component.note}</span> : null}
+                    {group.components.map((component) => (
+                      <span class="spec-entry">
+                        {component.label ? (
+                          <span class="spec-sub">{component.label} · </span>
+                        ) : null}
+                        {formatComponent(component)}
+                      </span>
+                    ))}
                   </dd>
                 </div>
               ))}
@@ -143,11 +149,16 @@ if (system.frontmatter.role) {
     text-align: right;
   }
 
-  .spec-note {
+  .spec-entry {
     display: block;
+  }
+
+  .spec-entry + .spec-entry {
+    margin-top: 0.35rem;
+  }
+
+  .spec-sub {
     color: var(--comment);
-    font-size: 0.8rem;
-    line-height: 1.5;
   }
 
   .content:empty {

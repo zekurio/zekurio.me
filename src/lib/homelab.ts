@@ -19,9 +19,15 @@ export type ComponentCategory = (typeof componentCategories)[number]
 export interface HomelabComponent {
   category: ComponentCategory
   name: string
+  // Sub-label shown when a category has multiple entries, e.g. "flash".
+  label?: string
   count?: number
   size?: string
-  note?: string
+}
+
+export interface HomelabComponentGroup {
+  category: ComponentCategory
+  components: HomelabComponent[]
 }
 
 export interface HomelabFrontmatter {
@@ -50,12 +56,17 @@ export function getHomelabSystems() {
   )
 }
 
-// Sorts components into the fixed category order while keeping the
-// authored order within each category (e.g. multiple storage entries).
-export function orderComponents(components: HomelabComponent[]) {
-  return componentCategories.flatMap((category) =>
-    components.filter((component) => component.category === category),
-  )
+// Groups components into one row per category, in the fixed category order,
+// keeping the authored order within each category (e.g. storage entries).
+export function groupComponents(
+  components: HomelabComponent[],
+): HomelabComponentGroup[] {
+  return componentCategories.flatMap((category) => {
+    const matched = components.filter(
+      (component) => component.category === category,
+    )
+    return matched.length > 0 ? [{ category, components: matched }] : []
+  })
 }
 
 // Renders a component as e.g. "2 × 8tb hdd" or "ryzen 5 5600x".
