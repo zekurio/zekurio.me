@@ -1,6 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { getHomelabSystems } from "../../lib/homelab";
+import { formatComponent, getHomelabSystems, orderComponents } from "../../lib/homelab";
 import type { HomelabSystem } from "../../lib/homelab";
 
 export async function getStaticPaths() {
@@ -16,36 +16,13 @@ export async function getStaticPaths() {
 const { system } = Astro.props as { system: HomelabSystem };
 const filename = system.file.split("/").pop() ?? "";
 const slug = filename.replace(".md", "");
-const specs = system.frontmatter.specs ?? [];
-const specOrder = [
-  "cpu",
-  "cooler",
-  "ram",
-  "mb",
-  "flash",
-  "spinning rust",
-  "gpu",
-  "psu",
-  "case",
-];
-const specsByLabel = Object.fromEntries(specs.map((spec) => [spec.label, spec])) as Record<
-  string,
-  (typeof specs)[number]
->;
-const orderedSpecs = specOrder.flatMap((label) => {
-  const spec = specsByLabel[label];
-  if (!spec) {
-    return [];
-  }
-  const displayLabel = label === "gpu" && spec.count && spec.count > 1 ? "gpus" : label;
-  return [[displayLabel, spec.value]];
-});
-const os = system.frontmatter.os ?? specsByLabel.os?.value;
-if (os) {
-  orderedSpecs.push(["os", os]);
+const components = orderComponents(system.frontmatter.components ?? []);
+const systemRows: [string, string][] = [];
+if (system.frontmatter.os) {
+  systemRows.push(["os", system.frontmatter.os]);
 }
 if (system.frontmatter.role) {
-  orderedSpecs.push(["role", system.frontmatter.role]);
+  systemRows.push(["role", system.frontmatter.role]);
 }
 ---
 
@@ -62,11 +39,20 @@ if (system.frontmatter.role) {
       <div class="divider"></div>
 
       {
-        orderedSpecs.length > 0 ? (
+        components.length > 0 || systemRows.length > 0 ? (
           <section class="spec-sheet" aria-labelledby="spec-heading">
             <h2 id="spec-heading">specs</h2>
             <dl>
-              {orderedSpecs.map(([label, value]) => (
+              {components.map((component) => (
+                <div class="spec-row">
+                  <dt>{component.category}</dt>
+                  <dd>
+                    {formatComponent(component)}
+                    {component.note ? <span class="spec-note">{component.note}</span> : null}
+                  </dd>
+                </div>
+              ))}
+              {systemRows.map(([label, value]) => (
                 <div class="spec-row">
                   <dt>{label}</dt>
                   <dd>{value}</dd>
@@ -155,6 +141,13 @@ if (system.frontmatter.role) {
     min-width: 0;
     color: var(--fg);
     text-align: right;
+  }
+
+  .spec-note {
+    display: block;
+    color: var(--comment);
+    font-size: 0.8rem;
+    line-height: 1.5;
   }
 
   .content:empty {
