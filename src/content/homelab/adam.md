@@ -4,22 +4,26 @@ description: "big boi. the og. the first server. used for storage + hosting."
 role: "storage"
 status: "active"
 os: "nixos 26.11 (unstable)"
-specs:
-  - label: "cpu"
-    value: "ryzen 5 5600x"
-  - label: "ram"
-    value: "32gb ram"
-  - label: "flash"
+components:
+  - category: cpu
+    name: "ryzen 5 5600x"
+  - category: memory
+    name: "ddr4"
+    size: "32gb"
+  - category: storage
+    name: "samsung 870 evo"
     count: 2
-    value: "2 × 256gb in zfs mirror (boot/root)"
-  - label: "spinning rust"
-    count: 3
-    value: "2 × 8tb in zfs mirror"
-  - label: "gpu"
-    count: 1
-    value: "intel arc a380"
-  - label: "psu"
-    value: "sfx psu"
-  - label: "case"
-    value: "jonsbo n6"
+    size: "256gb"
+    note: "zfs mirror (boot/root)"
+  - category: storage
+    name: "seagate ironwolf pro"
+    count: 2
+    size: "8tb"
+    note: "zfs mirror"
+  - category: gpu
+    name: "intel arc a380"
+  - category: psu
+    name: "sfx psu"
+  - category: case
+    name: "jonsbo n6"
 ---
