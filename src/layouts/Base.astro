@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from "astro:transitions";
 ---
 
 <!doctype html>
@@ -8,18 +9,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script is:inline>
       (() => {
-        let theme = null;
-        try {
-          theme = localStorage.getItem("theme");
-        } catch {
-          /* localStorage may be unavailable (private mode, sandboxed) */
-        }
-        if (theme !== "light" && theme !== "dark") {
-          theme = matchMedia("(prefers-color-scheme: light)").matches
-            ? "light"
-            : "dark";
-        }
-        document.documentElement.dataset.theme = theme;
+        const applyStoredTheme = () => {
+          let theme = null;
+          try {
+            theme = localStorage.getItem("theme");
+          } catch {
+            /* localStorage may be unavailable (private mode, sandboxed) */
+          }
+          if (theme !== "light" && theme !== "dark") {
+            theme = matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark";
+          }
+          document.documentElement.dataset.theme = theme;
+        };
+        applyStoredTheme();
+        // The ClientRouter swaps <html> attributes on navigation, dropping
+        // data-theme; re-apply it before the new page paints.
+        document.addEventListener("astro:after-swap", applyStoredTheme);
       })();
     </script>
     <meta
@@ -35,6 +42,7 @@
       crossorigin
     />
     <title>Michael S. - zekurio.me</title>
+    <ClientRouter />
     <style is:global>
       @font-face {
         font-family: "IBM Plex Mono";
@@ -211,7 +219,6 @@
     <slot />
     <script>
       const root = document.documentElement;
-      const toggle = document.querySelector(".theme-toggle");
       const media = matchMedia("(prefers-color-scheme: light)");
       const label = (theme) =>
         theme === "light" ? "Switch to dark theme" : "Switch to light theme";
@@ -226,12 +233,22 @@
 
       const apply = (theme) => {
         root.dataset.theme = theme;
-        toggle?.setAttribute("aria-label", label(theme));
+        document
+          .querySelector(".theme-toggle")
+          ?.setAttribute("aria-label", label(theme));
       };
 
       apply(root.dataset.theme);
 
-      toggle?.addEventListener("click", () => {
+      // The toggle button is replaced on every client-side navigation, so use
+      // delegation instead of binding to the element directly.
+      document.addEventListener("click", (event) => {
+        if (
+          !(event.target instanceof Element) ||
+          !event.target.closest(".theme-toggle")
+        ) {
+          return;
+        }
         const next = root.dataset.theme === "light" ? "dark" : "light";
         try {
           localStorage.setItem("theme", next);
@@ -239,6 +256,11 @@
           /* ignore persistence failures */
         }
         apply(next);
+      });
+
+      // Re-label the freshly swapped-in toggle after each navigation.
+      document.addEventListener("astro:page-load", () => {
+        apply(root.dataset.theme);
       });
 
       // Follow the OS theme live, unless the visitor picked one explicitly.
