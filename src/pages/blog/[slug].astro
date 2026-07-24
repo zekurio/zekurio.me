@@ -152,6 +152,13 @@ const slug = post.file.split("/").pop().replace(".md", "");
     font-size: 1.1rem;
   }
 
+  .content :global(img) {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 1.25rem;
+    border-radius: 0.375rem;
+  }
+
   .content :global(blockquote) {
     border-left: 2px solid var(--blue);
     padding-left: 1rem;
