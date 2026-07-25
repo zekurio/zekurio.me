@@ -23,7 +23,7 @@ posts.sort(
 <Base>
   <main class="blog-page">
     <header class="blog-header">
-      <h1 class="page-title" transition:name="blog-title">blog</h1>
+      <h1 class="page-title">blog</h1>
       <p class="subtitle">thoughts on hardware, software and other things.</p>
     </header>
 
@@ -38,7 +38,7 @@ posts.sort(
             day: "numeric",
           });
           return (
-            <a href={`/blog/${slug}`} class="post-row" transition:name={`post-${slug}`}>
+            <a href={`/blog/${slug}`} class="post-row">
               <span class="post-title">{post.frontmatter.title}</span>
               <span class="post-date">{dateStr}</span>
             </a>

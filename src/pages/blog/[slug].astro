@@ -22,14 +22,13 @@ const dateStr = date.toLocaleDateString("en-US", {
   month: "long",
   day: "numeric",
 });
-const slug = post.file.split("/").pop().replace(".md", "");
 ---
 
 <Base>
   <main>
     <article>
       <header>
-        <h1 class="post-title" transition:name={`post-${slug}`}>{post.frontmatter.title}</h1>
+        <h1 class="post-title">{post.frontmatter.title}</h1>
         <time class="post-date">{dateStr}</time>
       </header>
 

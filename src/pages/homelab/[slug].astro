@@ -14,8 +14,6 @@ export async function getStaticPaths() {
 }
 
 const { system } = Astro.props as { system: HomelabSystem };
-const filename = system.file.split("/").pop() ?? "";
-const slug = filename.replace(".md", "");
 const componentGroups = groupComponents(system.frontmatter.components ?? []);
 const systemRows: [string, string][] = [];
 if (system.frontmatter.os) {
@@ -30,9 +28,7 @@ if (system.frontmatter.role) {
   <main class="system-page">
     <article>
       <header>
-        <h1 class="system-title" transition:name={`homelab-${slug}`}>
-          {system.frontmatter.title}
-        </h1>
+        <h1 class="system-title">{system.frontmatter.title}</h1>
         <p class="description">{system.frontmatter.description}</p>
       </header>
 
