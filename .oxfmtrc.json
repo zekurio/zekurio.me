@@ -16,6 +16,7 @@
   "sortPackageJson": true,
   "sortTailwindcss": true,
   "ignorePatterns": [
+    ".agents/skills/**",
     ".astro/**",
     ".direnv/**",
     ".git/**",
