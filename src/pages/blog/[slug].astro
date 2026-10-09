@@ -1,182 +1,177 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { getPosts, postSlug } from "../../lib/posts";
+import type { Post } from "../../lib/posts";
 
 export async function getStaticPaths() {
-  const postModules = import.meta.glob("../../content/posts/*.md", { eager: true });
-  const paths = [];
-  for (const path in postModules) {
-    const mod = postModules[path];
-    const slug = path.split("/").pop().replace(".md", "");
-    paths.push({
-      params: { slug },
-      props: { post: mod },
-    });
-  }
-  return paths;
+    return getPosts().map((post) => ({
+        params: { slug: postSlug(post) },
+        props: { post },
+    }));
 }
 
-const { post } = Astro.props;
+const { post } = Astro.props as { post: Post };
 const date = new Date(post.frontmatter.date);
 const dateStr = date.toLocaleDateString("en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
 });
 ---
 
 <Base>
-  <main>
-    <article>
-      <header>
-        <h1 class="post-title">{post.frontmatter.title}</h1>
-        <time class="post-date">{dateStr}</time>
-      </header>
+    <main>
+        <article>
+            <header>
+                <h1 class="post-title">{post.frontmatter.title}</h1>
+                <time class="post-date">{dateStr}</time>
+            </header>
 
-      <div class="divider"></div>
+            <div class="divider"></div>
 
-      <div class="content" set:html={post.compiledContent()} />
-    </article>
+            <div class="content" set:html={post.compiledContent()} />
+        </article>
 
-    <footer class="back">
-      <a href="/blog">← all posts</a>
-    </footer>
-  </main>
+        <footer class="back">
+            <a href="/blog">← all posts</a>
+        </footer>
+    </main>
 </Base>
 
 <style>
-  main {
-    width: 100%;
-    max-width: 42rem;
-    text-align: left;
-  }
+    main {
+        width: 100%;
+        max-width: 42rem;
+        text-align: left;
+    }
 
-  .post-title {
-    font-size: 1.5rem;
-    font-weight: 400;
-    color: var(--text);
-    letter-spacing: 0;
-    line-height: 1.4;
-    margin-bottom: 0.5rem;
-  }
+    .post-title {
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: var(--text);
+        letter-spacing: 0;
+        line-height: 1.4;
+        margin-bottom: 0.5rem;
+    }
 
-  .post-date {
-    display: block;
-    font-size: 0.875rem;
-    color: var(--comment);
-    margin-bottom: 1.5rem;
-  }
+    .post-date {
+        display: block;
+        font-size: 0.875rem;
+        color: var(--comment);
+        margin-bottom: 1.5rem;
+    }
 
-  .divider {
-    height: 1px;
-    background-color: var(--divider);
-    margin-bottom: 2rem;
-  }
+    .divider {
+        height: 1px;
+        background-color: var(--divider);
+        margin-bottom: 2rem;
+    }
 
-  .content :global(p) {
-    margin-bottom: 1.25rem;
-    line-height: 1.75;
-  }
+    .content :global(p) {
+        margin-bottom: 1.25rem;
+        line-height: 1.75;
+    }
 
-  .content :global(p:last-child) {
-    margin-bottom: 0;
-  }
+    .content :global(p:last-child) {
+        margin-bottom: 0;
+    }
 
-  .content :global(a) {
-    color: var(--blue);
-    text-decoration: none;
-    position: relative;
-    transition: color 0.2s ease;
-  }
+    .content :global(a) {
+        color: var(--accent);
+        text-decoration: none;
+        position: relative;
+        transition: color 0.2s ease;
+    }
 
-  .content :global(a:hover) {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
+    .content :global(a:hover) {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
 
-  .content :global(strong) {
-    color: var(--text);
-    font-weight: 700;
-  }
+    .content :global(strong) {
+        color: var(--text);
+        font-weight: 700;
+    }
 
-  .content :global(em) {
-    font-style: italic;
-  }
+    .content :global(em) {
+        font-style: italic;
+    }
 
-  .content :global(ul),
-  .content :global(ol) {
-    margin-bottom: 1.25rem;
-    padding-left: 1.5rem;
-  }
+    .content :global(ul),
+    .content :global(ol) {
+        margin-bottom: 1.25rem;
+        padding-left: 1.5rem;
+    }
 
-  .content :global(li) {
-    margin-bottom: 0.5rem;
-    line-height: 1.75;
-  }
+    .content :global(li) {
+        margin-bottom: 0.5rem;
+        line-height: 1.75;
+    }
 
-  .content :global(code) {
-    font-family: "IBM Plex Mono", monospace;
-    font-size: 0.875em;
-    background-color: var(--border);
-    padding: 0.125rem 0.375rem;
-    border-radius: 0.25rem;
-  }
+    .content :global(code) {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.875em;
+        background-color: var(--border);
+        padding: 0.125rem 0.375rem;
+        border-radius: 0.25rem;
+    }
 
-  .content :global(pre) {
-    margin-bottom: 1.25rem;
-    padding: 1rem;
-    background-color: var(--code-bg);
-    border-radius: 0.375rem;
-    overflow-x: auto;
-  }
+    .content :global(pre) {
+        margin-bottom: 1.25rem;
+        padding: 1rem;
+        background-color: var(--code-bg);
+        border-radius: 0.375rem;
+        overflow-x: auto;
+    }
 
-  .content :global(pre code) {
-    background: none;
-    padding: 0;
-  }
+    .content :global(pre code) {
+        background: none;
+        padding: 0;
+    }
 
-  .content :global(h2),
-  .content :global(h3) {
-    color: var(--text);
-    font-weight: 400;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    line-height: 1.4;
-  }
+    .content :global(h2),
+    .content :global(h3) {
+        color: var(--text);
+        font-weight: 400;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        line-height: 1.4;
+    }
 
-  .content :global(h2) {
-    font-size: 1.25rem;
-  }
+    .content :global(h2) {
+        font-size: 1.25rem;
+    }
 
-  .content :global(h3) {
-    font-size: 1.1rem;
-  }
+    .content :global(h3) {
+        font-size: 1.1rem;
+    }
 
-  .content :global(img) {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 1.25rem;
-    border-radius: 0.375rem;
-  }
+    .content :global(img) {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 1.25rem;
+        border-radius: 0.375rem;
+    }
 
-  .content :global(blockquote) {
-    border-left: 2px solid var(--blue);
-    padding-left: 1rem;
-    margin-bottom: 1.25rem;
-    color: var(--fg);
-  }
+    .content :global(blockquote) {
+        border-left: 2px solid var(--accent);
+        padding-left: 1rem;
+        margin-bottom: 1.25rem;
+        color: var(--fg);
+    }
 
-  .back {
-    margin-top: 3rem;
-    font-size: 0.875rem;
-    color: var(--comment);
-  }
+    .back {
+        margin-top: 3rem;
+        font-size: 0.875rem;
+        color: var(--comment);
+    }
 
-  .back a {
-    color: var(--comment);
-    transition: color 0.2s ease;
-  }
+    .back a {
+        color: var(--comment);
+        transition: color 0.2s ease;
+    }
 
-  .back a:hover {
-    color: var(--fg);
-  }
+    .back a:hover {
+        color: var(--fg);
+    }
 </style>

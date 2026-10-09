@@ -4,19 +4,23 @@
   (`index`, `projects`, `blog`, `blog/[slug]`, `homelab`, `homelab/[slug]`,
   plus the `zekurio.keys` and `zekurio.gpg` text endpoints),
   `src/layouts/Base.astro` as the only layout, typed helpers in `src/lib`,
-  markdown in `src/content/{posts,homelab}`, static assets in `public/`.
+  markdown posts in `src/content/posts`, static assets in `public/`.
 - The default branch is `main`; use `main` or `origin/main` for diffs.
 - Node 24.14.0 (`.node-version`, flake devshell) and `pnpm@10.12.1` (pinned);
   never use npm, yarn, or Bun. `pnpm dev` runs the Astro dev server;
   `pnpm preview` builds and serves through the local Workers runtime
   (`wrangler dev`).
 - Formatting is oxfmt and linting is oxlint (type-aware, `no-console` is an
-  error), not Prettier/ESLint. There is no test or typecheck script.
-- `pnpm run format:check`, `pnpm run lint`, and `pnpm run build` must all pass
-  before a coding task is complete. Use `pnpm run format` / `pnpm run lint:fix`
-  only when you intend to rewrite formatting or lint output.
+  error), not Prettier/ESLint. Type checking is `pnpm run typecheck`
+  (`astro check`), the only check that covers `.astro` frontmatter and
+  `<script>` blocks. There is no test script.
+- `pnpm run format:check`, `pnpm run lint`, `pnpm run typecheck`, and
+  `pnpm run build` must all pass before a coding task is complete. Use
+  `pnpm run format` / `pnpm run lint:fix` only when you intend to rewrite
+  formatting or lint output.
 - oxfmt and oxlint only match `.ts`/`.mjs`/`.json`; `.astro` files are neither
-  formatted nor linted, so match the style already used in the file you edit.
+  formatted nor linted (only type-checked), so match the style already used in
+  the file you edit.
 - Output is `static` and deployed as Cloudflare Workers static assets
   (`wrangler.jsonc` uploads `dist/` with auto-trailing-slash). There is no
   server runtime: no SSR, middleware, or request-time code. Run
@@ -40,12 +44,13 @@ Valid types are `feat`, `fix`, `docs`, `chore`, `refactor`, and `test`. Scopes a
 
 ## Content
 
-- Markdown is loaded with `import.meta.glob(..., { eager: true })`; there is no
-  content collection config, and slugs come from filenames.
-- Post frontmatter is `title` + `date`. Homelab frontmatter is typed in
-  `src/lib/homelab.ts` (`HomelabFrontmatter`, fixed `componentCategories`
-  order, `groupComponents`, `formatComponent`) — extend that module instead of
-  parsing frontmatter inside a page.
+- Post markdown is loaded with `import.meta.glob(..., { eager: true })`; there
+  is no content collection config, and slugs come from filenames.
+- Post frontmatter is `title` + `date`. Homelab systems are not markdown: they
+  are typed data in `homelabSystems` in `src/lib/homelab.ts`, with components
+  keyed by category and rendered in the fixed `componentCategories` order via
+  `specRows`. Add or edit systems there and keep display logic in that module
+  rather than in a page.
 - Site copy, headings, and page titles are lowercase and direct; prefer
   concrete work, dates, and specs over marketing claims.
 - The first viewport is real content: a visitor should immediately understand

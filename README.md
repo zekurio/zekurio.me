@@ -22,10 +22,13 @@ runtime (`wrangler dev`), which is the closest match to production.
 ### Content
 
 Blog posts are markdown files in `src/content/posts` with `title` and `date`
-frontmatter. Homelab systems are markdown files in `src/content/homelab` with
-structured `components` frontmatter (category, name, optional label, count,
-size) typed in `src/lib/homelab.ts`. In both cases the filename becomes the
-slug, so `src/content/posts/hello-world.md` is served at `/blog/hello-world`.
+frontmatter; the filename becomes the slug, so `src/content/posts/hello-world.md`
+is served at `/blog/hello-world`.
+
+Homelab systems are typed data in the `homelabSystems` array in
+`src/lib/homelab.ts`: a name (also the slug), description, optional role and
+os, and components keyed by category (`cpu`, `memory`, `storage`, ...). Each
+component has a name and an optional label, count, and size.
 
 ### Endpoints
 

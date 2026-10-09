@@ -1,38 +1,11 @@
 ---
 import Base from "../layouts/Base.astro";
 
-const langColors = {
-    astro: "var(--pink)",
-    c: "var(--blue)",
-    cpp: "var(--purple)",
-    csharp: "var(--green)",
-    css: "var(--sapphire)",
-    dart: "var(--sky)",
-    go: "var(--cyan)",
-    html: "var(--orange)",
-    java: "var(--red)",
-    javascript: "var(--yellow)",
-    kotlin: "var(--pink)",
-    nix: "var(--purple)",
-    php: "var(--lavender)",
-    python: "var(--yellow)",
-    ruby: "var(--red)",
-    rust: "var(--orange)",
-    shell: "var(--green)",
-    svelte: "var(--orange)",
-    swift: "var(--orange)",
-    typescript: "var(--blue)",
-    vue: "var(--green)",
-    zig: "var(--yellow)",
-} as const;
-
-type Language = keyof typeof langColors;
-
 interface Project {
     name: string;
     description: string;
     url: string;
-    language: Language;
+    language: string;
 }
 
 const projects: Project[] = [
@@ -65,34 +38,27 @@ const projects: Project[] = [
         </header>
 
         <ul class="project-list">
-            {
-                projects.map((project) => (
-                    <li>
-                        <a
-                            href={project.url}
-                            class="project-row"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <div class="row-main">
-                                <span class="project-name">{project.name}</span>
-                                <span class="project-desc">
-                                    {project.description}
-                                </span>
-                            </div>
-                            <span
-                                class="lang-tag"
-                                style={`--lang-color: ${langColors[project.language]};`}
-                            >
-                                <span class="lang-dot" />
-                                <span class="lang-name">
-                                    {project.language}
-                                </span>
+            {projects.map((project) => (
+                <li>
+                    <a
+                        href={project.url}
+                        class="project-row"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <div class="row-main">
+                            <span class="project-name">{project.name}</span>
+                            <span class="project-desc">
+                                {project.description}
                             </span>
-                        </a>
-                    </li>
-                ))
-            }
+                        </div>
+                        <span class="lang-tag">
+                            <span class="lang-dot" />
+                            <span class="lang-name">{project.language}</span>
+                        </span>
+                    </a>
+                </li>
+            ))}
         </ul>
 
         <footer class="back">
@@ -184,7 +150,7 @@ const projects: Project[] = [
         width: 0.6rem;
         height: 0.6rem;
         border-radius: 50%;
-        background-color: var(--lang-color);
+        background-color: var(--comment);
     }
 
     .back {
