@@ -1,12 +1,13 @@
 # zekurio.me
 
-Personal site of Michael S.: projects, homelab systems, a blog, and plaintext
-mirrors of my public SSH and GPG keys. Built with Astro, rendered fully static,
-and deployed as Cloudflare Workers static assets.
+My personal site. It has my projects, my homelab systems, a blog, and
+plaintext copies of my public SSH and GPG keys. It's built with Astro,
+rendered fully static, and deployed as Cloudflare Workers static assets.
 
 ### Development
 
-With [direnv](https://direnv.net/) and Nix (provides Node 24 and pnpm):
+With [direnv](https://direnv.net/) and Nix, the devshell provides Node 24 and
+pnpm:
 
 ```sh
 direnv allow
@@ -14,28 +15,31 @@ pnpm install
 pnpm dev
 ```
 
-Without Nix: install Node 24.14.0 and pnpm 10, then `pnpm install && pnpm dev`.
+Without Nix, install Node 24.14.0 and pnpm 10, then run
+`pnpm install && pnpm dev`.
 
-`pnpm preview` builds the site and serves `dist/` through the local Workers
-runtime (`wrangler dev`), which is the closest match to production.
+`pnpm preview` builds the site and serves `dist/` with `wrangler dev`. That's
+the same Workers runtime production uses, so check things there before
+deploying.
 
 ### Content
 
 Blog posts are markdown files in `src/content/posts` with `title` and `date`
-frontmatter; the filename becomes the slug, so `src/content/posts/hello-world.md`
-is served at `/blog/hello-world`.
+in the frontmatter. The filename is the slug, so
+`src/content/posts/hello-world.md` ends up at `/blog/hello-world`.
 
-Homelab systems are typed data in the `homelabSystems` array in
-`src/lib/homelab.ts`: a name (also the slug), description, optional role and
-os, and components keyed by category (`cpu`, `memory`, `storage`, ...). Each
-component has a name and an optional label, count, and size.
+Homelab systems aren't markdown. They live in the `homelabSystems` array in
+`src/lib/homelab.ts`. Each system has a name, which doubles as the slug, a
+description, an optional role and os, and components keyed by category such as
+`cpu`, `memory`, or `storage`. A component has a name and an optional label,
+count, and size.
 
 ### Endpoints
 
-`/zekurio.keys` and `/zekurio.gpg` mirror GitHub's plaintext key endpoints
-byte-for-byte, so they can be piped straight into `authorized_keys` or `gpg
---import`. They are fetched at build time, so key rotations show up after the
-next deploy.
+`/zekurio.keys` and `/zekurio.gpg` match GitHub's plaintext key endpoints
+byte-for-byte. You can pipe them straight into `authorized_keys` or
+`gpg --import`. The build fetches them from GitHub, so a rotated key only
+shows up after the next deploy.
 
 ### Deployment
 
@@ -43,12 +47,13 @@ next deploy.
 pnpm run deploy
 ```
 
-Builds the site and uploads `dist/` with Wrangler using the configuration in
+This builds the site and uploads `dist/` with Wrangler, using
 [`wrangler.jsonc`](wrangler.jsonc). Run `pnpm run generate-types` after
 changing Cloudflare bindings.
 
-Before committing, run `pnpm run format:check`, `pnpm run lint`, and
-`pnpm run build`. [`AGENTS.md`](AGENTS.md) covers the repo's conventions.
+Before committing, run `pnpm run format:check`, `pnpm run lint`,
+`pnpm run typecheck`, and `pnpm run build`. The repo's conventions are in
+[`AGENTS.md`](AGENTS.md).
 
 ### License
 
