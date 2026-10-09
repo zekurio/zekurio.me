@@ -1,11 +1,36 @@
 ---
 import Base from "../layouts/Base.astro";
 
+const langColors = {
+    astro: "var(--pink)",
+    c: "var(--blue)",
+    cpp: "var(--purple)",
+    csharp: "var(--green)",
+    css: "var(--blue)",
+    dart: "var(--cyan)",
+    go: "var(--cyan)",
+    html: "var(--orange)",
+    java: "var(--red)",
+    javascript: "var(--yellow)",
+    kotlin: "var(--pink)",
+    nix: "var(--purple)",
+    php: "var(--purple)",
+    python: "var(--yellow)",
+    ruby: "var(--red)",
+    rust: "var(--orange)",
+    shell: "var(--green)",
+    svelte: "var(--orange)",
+    swift: "var(--orange)",
+    typescript: "var(--blue)",
+    vue: "var(--green)",
+    zig: "var(--yellow)",
+};
+
 interface Project {
     name: string;
     description: string;
     url: string;
-    language: string;
+    language: keyof typeof langColors;
 }
 
 const projects: Project[] = [
@@ -52,7 +77,10 @@ const projects: Project[] = [
                                 {project.description}
                             </span>
                         </div>
-                        <span class="lang-tag">
+                        <span
+                            class="lang-tag"
+                            style={`--lang-color: ${langColors[project.language]};`}
+                        >
                             <span class="lang-dot" />
                             <span class="lang-name">{project.language}</span>
                         </span>
@@ -150,7 +178,7 @@ const projects: Project[] = [
         width: 0.6rem;
         height: 0.6rem;
         border-radius: 50%;
-        background-color: var(--comment);
+        background-color: var(--lang-color);
     }
 
     .back {

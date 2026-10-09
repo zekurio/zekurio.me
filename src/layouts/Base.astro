@@ -55,7 +55,10 @@ import { ClientRouter } from "astro:transitions";
             }
 
             /* Monochrome grays with one red accent, matching the Zed theme.
-               Accent and muted grays keep at least 4.5:1 contrast on --bg. */
+               Accent and muted grays keep at least 4.5:1 contrast on --bg.
+               The hues share the accent's saturation and lightness so they sit
+               in the same family; they are only for small markers such as
+               project language dots, never for text. */
             :root {
                 color-scheme: dark;
                 --bg: #262626;
@@ -64,6 +67,14 @@ import { ClientRouter } from "astro:transitions";
                 --overlay: #a3a3a3; /* secondary labels */
                 --comment: #8f8f8f; /* muted */
                 --accent: #f25c5c;
+                --red: #f25a5a;
+                --orange: #f2995a;
+                --yellow: #f2cc5a;
+                --green: #61d17d;
+                --cyan: #4dcbcb;
+                --blue: #5a99f2;
+                --purple: #a65af2;
+                --pink: #f25ab2;
                 --code-bg: #1c1c1c;
                 --border: rgba(255, 255, 255, 0.08);
                 --divider: rgba(255, 255, 255, 0.15);
@@ -77,6 +88,14 @@ import { ClientRouter } from "astro:transitions";
                 --overlay: #525252; /* secondary labels */
                 --comment: #6b6b6b; /* muted */
                 --accent: #cc2b2b;
+                --red: #ca2b2b;
+                --orange: #ca6d2b;
+                --yellow: #b38c19;
+                --green: #298e43;
+                --cyan: #1e8f8f;
+                --blue: #2b6dca;
+                --purple: #7a2bca;
+                --pink: #ca2b88;
                 --code-bg: #ebebeb;
                 --border: rgba(0, 0, 0, 0.08);
                 --divider: rgba(0, 0, 0, 0.14);
