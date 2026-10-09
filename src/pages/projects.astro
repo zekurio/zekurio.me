@@ -1,66 +1,16 @@
 ---
+import BackLink from "../components/BackLink.astro";
+import PageHeader from "../components/PageHeader.astro";
 import Base from "../layouts/Base.astro";
-
-const langColors = {
-    astro: "var(--pink)",
-    c: "var(--blue)",
-    cpp: "var(--purple)",
-    csharp: "var(--green)",
-    css: "var(--blue)",
-    dart: "var(--cyan)",
-    go: "var(--cyan)",
-    html: "var(--orange)",
-    java: "var(--red)",
-    javascript: "var(--yellow)",
-    kotlin: "var(--pink)",
-    nix: "var(--purple)",
-    php: "var(--purple)",
-    python: "var(--yellow)",
-    ruby: "var(--red)",
-    rust: "var(--orange)",
-    shell: "var(--green)",
-    svelte: "var(--orange)",
-    swift: "var(--orange)",
-    typescript: "var(--blue)",
-    vue: "var(--green)",
-    zig: "var(--yellow)",
-};
-
-interface Project {
-    name: string;
-    description: string;
-    url: string;
-    language: keyof typeof langColors;
-}
-
-const projects: Project[] = [
-    {
-        name: "alloy",
-        description: "an open-source, self-hostable alternative to Medal.tv",
-        url: "https://github.com/zekurio/alloy",
-        language: "typescript",
-    },
-    {
-        name: "blitzcrank",
-        description: "a support bot for my homelab, built on top of Pi",
-        url: "https://github.com/zekurio/blitzcrank",
-        language: "typescript",
-    },
-    {
-        name: "inviterr",
-        description: "user management and invitations for Jellyfin",
-        url: "https://github.com/zekurio/inviterr",
-        language: "typescript",
-    },
-];
+import { langColors, projects } from "../lib/projects";
 ---
 
 <Base>
     <main class="projects-page">
-        <header class="projects-header">
-            <h1 class="page-title">projects</h1>
-            <p class="subtitle">a few things i've been working on.</p>
-        </header>
+        <PageHeader
+            title="projects"
+            subtitle="a few things i've been working on."
+        />
 
         <ul class="project-list">
             {projects.map((project) => (
@@ -89,9 +39,7 @@ const projects: Project[] = [
             ))}
         </ul>
 
-        <footer class="back">
-            <a href="/">← back</a>
-        </footer>
+        <BackLink href="/">back</BackLink>
     </main>
 </Base>
 
@@ -102,28 +50,8 @@ const projects: Project[] = [
         text-align: left;
     }
 
-    .projects-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .page-title {
-        font-size: 1.5rem;
-        font-weight: 400;
-        color: var(--text);
-        line-height: 1.4;
-        margin-bottom: 0.25rem;
-    }
-
-    .subtitle {
-        font-size: 0.875rem;
-        color: var(--fg);
-        line-height: 1.4;
-    }
-
     .project-list {
         list-style: none;
-        margin: 0 0 2rem;
-        padding: 0;
         display: flex;
         flex-direction: column;
     }
@@ -179,19 +107,5 @@ const projects: Project[] = [
         height: 0.6rem;
         border-radius: 50%;
         background-color: var(--lang-color);
-    }
-
-    .back {
-        color: var(--overlay);
-        font-size: 0.875rem;
-    }
-
-    .back a {
-        color: var(--overlay);
-        transition: color 0.2s ease;
-    }
-
-    .back a:hover {
-        color: var(--text);
     }
 </style>

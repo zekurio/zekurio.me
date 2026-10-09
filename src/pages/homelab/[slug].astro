@@ -1,4 +1,5 @@
 ---
+import BackLink from "../../components/BackLink.astro";
 import Base from "../../layouts/Base.astro";
 import { homelabSystems, specRows } from "../../lib/homelab";
 import type { HomelabSystem } from "../../lib/homelab";
@@ -48,9 +49,7 @@ const rows = specRows(system);
             </section>
         </article>
 
-        <footer class="back">
-            <a href="/homelab">← all systems</a>
-        </footer>
+        <BackLink href="/homelab">all systems</BackLink>
     </main>
 </Base>
 
@@ -131,20 +130,5 @@ const rows = specRows(system);
 
     .spec-sub {
         color: var(--comment);
-    }
-
-    .back {
-        margin-top: 3rem;
-        font-size: 0.875rem;
-        color: var(--comment);
-    }
-
-    .back a {
-        color: var(--comment);
-        transition: color 0.2s ease;
-    }
-
-    .back a:hover {
-        color: var(--fg);
     }
 </style>

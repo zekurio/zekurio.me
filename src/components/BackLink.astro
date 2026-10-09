@@ -1,0 +1,26 @@
+---
+interface Props {
+    href: string;
+}
+---
+
+<footer>
+    <a href={Astro.props.href}>← <slot /></a>
+</footer>
+
+<style>
+    footer {
+        margin-top: 3rem;
+        font-size: 0.875rem;
+        color: var(--comment);
+    }
+
+    a {
+        color: var(--comment);
+        transition: color 0.2s ease;
+    }
+
+    a:hover {
+        color: var(--fg);
+    }
+</style>

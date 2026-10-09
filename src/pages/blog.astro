@@ -1,40 +1,29 @@
 ---
+import BackLink from "../components/BackLink.astro";
+import PageHeader from "../components/PageHeader.astro";
 import Base from "../layouts/Base.astro";
-import { getPosts, postSlug } from "../lib/posts";
-
-const posts = getPosts();
+import { formatPostDate, postSlug, posts } from "../lib/posts";
 ---
 
 <Base>
     <main class="blog-page">
-        <header class="blog-header">
-            <h1 class="page-title">blog</h1>
-            <p class="subtitle">
-                thoughts on hardware, software and other things.
-            </p>
-        </header>
+        <PageHeader
+            title="blog"
+            subtitle="thoughts on hardware, software and other things."
+        />
 
         <nav class="post-list">
-            {posts.map((post) => {
-                const slug = postSlug(post);
-                const date = new Date(post.frontmatter.date);
-                const dateStr = date.toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                });
-                return (
-                    <a href={`/blog/${slug}`} class="post-row">
-                        <span class="post-title">{post.frontmatter.title}</span>
-                        <span class="post-date">{dateStr}</span>
-                    </a>
-                );
-            })}
+            {posts.map((post) => (
+                <a href={`/blog/${postSlug(post)}`} class="post-row">
+                    <span class="post-title">{post.frontmatter.title}</span>
+                    <span class="post-date">
+                        {formatPostDate(post, "short")}
+                    </span>
+                </a>
+            ))}
         </nav>
 
-        <footer class="back">
-            <a href="/">← back</a>
-        </footer>
+        <BackLink href="/">back</BackLink>
     </main>
 </Base>
 
@@ -45,27 +34,9 @@ const posts = getPosts();
         text-align: left;
     }
 
-    .page-title {
-        font-size: 1.5rem;
-        font-weight: 400;
-        color: var(--text);
-        letter-spacing: 0;
-        line-height: 1.4;
-        margin-bottom: 0.25rem;
-    }
-
-    .subtitle {
-        font-size: 0.875rem;
-        color: var(--comment);
-        margin-bottom: 2.5rem;
-        line-height: 1.4;
-    }
-
     .post-list {
         display: flex;
         flex-direction: column;
-        gap: 0;
-        margin-bottom: 3rem;
     }
 
     .post-row {
@@ -114,20 +85,6 @@ const posts = getPosts();
     }
 
     .post-row:hover .post-date {
-        color: var(--fg);
-    }
-
-    .back {
-        font-size: 0.875rem;
-        color: var(--comment);
-    }
-
-    .back a {
-        color: var(--comment);
-        transition: color 0.2s ease;
-    }
-
-    .back a:hover {
         color: var(--fg);
     }
 </style>

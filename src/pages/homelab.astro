@@ -1,14 +1,16 @@
 ---
+import BackLink from "../components/BackLink.astro";
+import PageHeader from "../components/PageHeader.astro";
 import Base from "../layouts/Base.astro";
 import { homelabSystems } from "../lib/homelab";
 ---
 
 <Base>
     <main class="homelab-page">
-        <header class="homelab-header">
-            <h1 class="page-title">homelab</h1>
-            <p class="subtitle">systems currently in use and what's in them.</p>
-        </header>
+        <PageHeader
+            title="homelab"
+            subtitle="systems currently in use and what's in them."
+        />
 
         <nav class="system-list" aria-label="homelab systems">
             {homelabSystems.map((system) => (
@@ -21,9 +23,7 @@ import { homelabSystems } from "../lib/homelab";
             ))}
         </nav>
 
-        <footer class="back">
-            <a href="/">← back</a>
-        </footer>
+        <BackLink href="/">back</BackLink>
     </main>
 </Base>
 
@@ -34,29 +34,9 @@ import { homelabSystems } from "../lib/homelab";
         text-align: left;
     }
 
-    .homelab-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .page-title {
-        font-size: 1.5rem;
-        font-weight: 400;
-        color: var(--text);
-        letter-spacing: 0;
-        line-height: 1.4;
-        margin-bottom: 0.25rem;
-    }
-
-    .subtitle {
-        font-size: 0.875rem;
-        color: var(--comment);
-        line-height: 1.4;
-    }
-
     .system-list {
         display: flex;
         flex-direction: column;
-        margin-bottom: 2rem;
     }
 
     .system-row {
@@ -94,19 +74,5 @@ import { homelabSystems } from "../lib/homelab";
         color: var(--fg);
         font-size: 0.825rem;
         line-height: 1.45;
-    }
-
-    .back {
-        color: var(--overlay);
-        font-size: 0.875rem;
-    }
-
-    .back a {
-        color: var(--overlay);
-        transition: color 0.2s ease;
-    }
-
-    .back a:hover {
-        color: var(--text);
     }
 </style>

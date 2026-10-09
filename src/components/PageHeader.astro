@@ -1,0 +1,31 @@
+---
+interface Props {
+    title: string;
+    subtitle: string;
+}
+---
+
+<header>
+    <h1>{Astro.props.title}</h1>
+    <p>{Astro.props.subtitle}</p>
+</header>
+
+<style>
+    header {
+        margin-bottom: 1.5rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: var(--text);
+        line-height: 1.4;
+        margin-bottom: 0.25rem;
+    }
+
+    p {
+        font-size: 0.875rem;
+        color: var(--comment);
+        line-height: 1.4;
+    }
+</style>

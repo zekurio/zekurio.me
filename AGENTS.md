@@ -3,8 +3,10 @@
 - `zekurio.me` is a small personal Astro site: routes in `src/pages`
   (`index`, `projects`, `blog`, `blog/[slug]`, `homelab`, `homelab/[slug]`,
   plus the `zekurio.keys` and `zekurio.gpg` text endpoints),
-  `src/layouts/Base.astro` as the only layout, typed helpers in `src/lib`,
-  markdown posts in `src/content/posts`, static assets in `public/`.
+  `src/layouts/Base.astro` as the only layout, shared page pieces
+  (`PageHeader`, `BackLink`) in `src/components`, typed helpers and site data
+  (posts, projects, homelab) in `src/lib`, markdown posts in
+  `src/content/posts`, static assets in `public/`.
 - The default branch is `main`; use `main` or `origin/main` for diffs.
 - Node 24.14.0 (`.node-version`, flake devshell) and `pnpm@10.12.1` (pinned);
   never use npm, yarn, or Bun. `pnpm dev` runs the Astro dev server;
