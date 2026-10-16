@@ -45,8 +45,7 @@ export interface SpecRow {
 export const homelabSystems: HomelabSystem[] = [
   {
     name: "adam",
-    description:
-      "big boi. used for storage + hosting.",
+    description: "big boi. used for storage + hosting.",
     role: "storage",
     os: "nixos 26.11 (unstable)",
     components: {

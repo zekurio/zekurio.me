@@ -15,16 +15,18 @@
       in
       {
         devShells.default = pkgs.mkShell {
+          # Wrangler comes from node_modules/.bin rather than nixpkgs, whose
+          # copy lags behind and bundles a workerd too old for the
+          # compatibility_date in wrangler.jsonc.
           buildInputs = with pkgs; [
             nodejs_24
             pnpm
-            wrangler
           ];
 
           shellHook = ''
             export ZEKURIO_ME_ROOT="$PWD"
             export PNPM_HOME="$PWD/.pnpm-home"
-            export PATH="$PNPM_HOME:$PATH"
+            export PATH="$PWD/node_modules/.bin:$PNPM_HOME:$PATH"
           '';
         };
       }
