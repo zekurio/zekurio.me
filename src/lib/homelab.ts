@@ -52,7 +52,7 @@ export const homelabSystems: HomelabSystem[] = [
       cpu: [{ name: "ryzen 5 5600x" }],
       memory: [{ name: "ddr4", size: "32gb" }],
       storage: [
-        { label: "flash", name: "samsung 870 evo", count: 2, size: "512gb" },
+        { label: "flash", name: "samsung 870 evo", count: 1, size: "512gb" },
         {
           label: "spinning rust",
           name: "seagate ironwolf pro",
