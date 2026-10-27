@@ -1,8 +1,8 @@
 # zekurio.me
 
-My personal site. It has my projects, my homelab systems, a blog, and
-plaintext copies of my public SSH and GPG keys. It's built with Astro,
-rendered fully static, and deployed as Cloudflare Workers static assets.
+My personal site. It has my projects, my homelab systems, and plaintext
+copies of my public SSH and GPG keys. It's built with Astro, rendered fully
+static, and deployed as Cloudflare Workers static assets.
 
 ### Development
 
@@ -24,15 +24,10 @@ deploying.
 
 ### Content
 
-Blog posts are markdown files in `src/content/posts` with `title` and `date`
-in the frontmatter. The filename is the slug, so
-`src/content/posts/hello-world.md` ends up at `/blog/hello-world`.
-
-Homelab systems aren't markdown. They live in the `homelabSystems` array in
-`src/lib/homelab.ts`. Each system has a name, which doubles as the slug, a
-description, an optional role and os, and components keyed by category such as
-`cpu`, `memory`, or `storage`. A component has a name and an optional label,
-count, and size.
+Homelab systems live in the `homelabSystems` array in `src/lib/homelab.ts`.
+Each system has a name, which doubles as the slug, a description, an optional
+role and os, and components keyed by category such as `cpu`, `memory`, or
+`storage`. A component has a name and an optional label, count, and size.
 
 ### Endpoints
 

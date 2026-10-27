@@ -1,12 +1,11 @@
 # Repository Guidelines
 
 - `zekurio.me` is a small personal Astro site: routes in `src/pages`
-  (`index`, `projects`, `blog`, `blog/[slug]`, `homelab`, `homelab/[slug]`,
-  plus the `zekurio.keys` and `zekurio.gpg` text endpoints),
-  `src/layouts/Base.astro` as the only layout, shared page pieces
-  (`PageHeader`, `BackLink`) in `src/components`, typed helpers and site data
-  (posts, projects, homelab) in `src/lib`, markdown posts in
-  `src/content/posts`, static assets in `public/`.
+  (`index`, `projects`, `homelab`, `homelab/[slug]`, plus the `zekurio.keys`
+  and `zekurio.gpg` text endpoints), `src/layouts/Base.astro` as the only
+  layout, shared page pieces (`PageHeader`, `BackLink`) in `src/components`,
+  typed helpers and site data (projects, homelab) in `src/lib`, static assets
+  in `public/`.
 - The default branch is `main`; use `main` or `origin/main` for diffs.
 - Node 24.14.0 (`.node-version`, flake devshell) and `pnpm@10.12.1` (pinned);
   never use npm, yarn, or Bun. `pnpm dev` runs the Astro dev server;
@@ -42,21 +41,18 @@ Use a short branch name of at most three words, separated by hyphens. Do not use
 
 Use conventional commit-style messages and PR titles: `type(scope): summary`.
 
-Valid types are `feat`, `fix`, `docs`, `chore`, `refactor`, and `test`. Scopes are optional; useful ones here are `blog`, `homelab`, `projects`, `layout`, `content`, `styles`, `astro`, and `deploy`. Example: `fix(blog): correct post metadata`.
+Valid types are `feat`, `fix`, `docs`, `chore`, `refactor`, and `test`. Scopes are optional; useful ones here are `homelab`, `projects`, `layout`, `content`, `styles`, `astro`, and `deploy`. Example: `fix(homelab): correct system specs`.
 
 ## Content
 
-- Post markdown is loaded with `import.meta.glob(..., { eager: true })`; there
-  is no content collection config, and slugs come from filenames.
-- Post frontmatter is `title` + `date`. Homelab systems are not markdown: they
-  are typed data in `homelabSystems` in `src/lib/homelab.ts`, with components
-  keyed by category and rendered in the fixed `componentCategories` order via
-  `specRows`. Add or edit systems there and keep display logic in that module
-  rather than in a page.
+- Homelab systems are typed data in `homelabSystems` in `src/lib/homelab.ts`,
+  with components keyed by category and rendered in the fixed
+  `componentCategories` order via `specRows`. Add or edit systems there and
+  keep display logic in that module rather than in a page.
 - Site copy, headings, and page titles are lowercase and direct; prefer
   concrete work, dates, and specs over marketing claims.
 - The first viewport is real content: a visitor should immediately understand
-  the page or post they opened. Do not add instructional text about how the UI
+  the page they opened. Do not add instructional text about how the UI
   works.
 
 ## Styling
